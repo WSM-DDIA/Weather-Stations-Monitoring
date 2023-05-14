@@ -23,7 +23,6 @@ public class WeatherStatusMessage {
         }
     }
     public WeatherStatusMessage(){}
-
     public WeatherStatusMessage(int station_id) {
         this.station_id = station_id;
         this.s_no = s_no;
@@ -31,9 +30,6 @@ public class WeatherStatusMessage {
     public long getStationId() {
         return station_id;
     }
-
-
-
     public void generateWeatherStatusMessage(long s_no) {
         this.s_no = s_no;
         this.status_timestamp = System.currentTimeMillis() / 1000;
@@ -42,7 +38,6 @@ public class WeatherStatusMessage {
         this.wind_speed = RANDOM.nextInt(101);
         this.battery_status = getBatteryStatus();
     }
-
     @Override
     public String toString() {
         return "WeatherStatusMessage{" +
