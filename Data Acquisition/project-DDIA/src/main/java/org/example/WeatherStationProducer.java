@@ -4,6 +4,9 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.JSONArray;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
@@ -19,9 +22,13 @@ public class WeatherStationProducer {
         this.stationId = stationId;
         this.latitude = latitude;
         this.longitude = longitude;
-        // Set up Kafka producer properties
         properties = new Properties();
-        properties.put("bootstrap.servers", "localhost:9092");
+        // Set up Kafka producer properties
+        Map<String, String> env = System.getenv();
+//        properties.put("bootstrap.servers", "localhost:9092");
+        String kafkaBroker = env.get("KAFKA_BROKER");
+        System.out.println(kafkaBroker);
+        properties.put("bootstrap.servers", kafkaBroker);
         properties.put("acks", "all");
         properties.put("retries", 0);
         properties.put("batch.size", 16384);
