@@ -1,8 +1,8 @@
 package org.example;
 
-public class Main {
+public class Main4 {
     public static void main(String[] args) {
-        WeatherStationProducer1 produce = new WeatherStationProducer1();
+        WeatherStationProducer4 produce = new WeatherStationProducer4();
         produce.produce();
     }
 }

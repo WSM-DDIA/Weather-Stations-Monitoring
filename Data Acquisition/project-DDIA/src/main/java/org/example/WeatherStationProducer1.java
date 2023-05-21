@@ -2,23 +2,18 @@ package org.example;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.LongSerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.json.JSONArray;
 
 import java.util.Properties;
 import java.util.Random;
 
 
-public class WeatherStationProducer {
+public class WeatherStationProducer1 {
     private static final Random RANDOM = new Random();
     private Properties properties;
-    private String stationId;
-    private String latitude;
-    private String longitude;
-
-    public WeatherStationProducer(String stationId,String latitude,String longitude) {
-        this.stationId = stationId;
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public WeatherStationProducer1() {
         // Set up Kafka producer properties
         properties = new Properties();
         properties.put("bootstrap.servers", "localhost:9092");
@@ -39,25 +34,34 @@ public class WeatherStationProducer {
             return false;
     }
 
+    private static String getBatteryStatus() {
+        int rand = RANDOM.nextInt(10);
+        if (rand < 3) {
+            return "low";
+        } else if (rand < 7) {
+            return "medium";
+        } else {
+            return "high";
+        }
+    }
+
     public int produce(){
-        long s_no = 0;
+        long s_no = 1;
         // Create a Kafka producer
         KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
-        GetData getData = new GetData(this.latitude,this.longitude);
-        Weather weather = getData.getData();
+        GetData getData = new GetData();
+        Weather weather = getData.fetchOpenMeteoData();
+        long timeStart = weather.getTimeStart();
         JSONArray temperature = weather.getTemperature();
         JSONArray humidity = weather.getHumidity();
         JSONArray windSpeed = weather.getWindSpeed();
-        System.out.println(temperature.toString());
-        WeatherStatusMessage message = new WeatherStatusMessage(this.stationId);
+        WeatherStatusMessage message = new WeatherStatusMessage("1");
         int count = 0;
-        long currentUnixTimestamp = (System.currentTimeMillis() / 1000L)-1;
         while (true) {
-            currentUnixTimestamp++;
-            s_no++;
             if(isDrop()){
+                s_no++;
                 if((s_no % 24) == 1) {
-                    weather = getData.getData();
+                    weather = getData.fetchOpenMeteoData();
                     temperature = weather.getTemperature();
                     humidity = weather.getHumidity();
                     windSpeed = weather.getWindSpeed();
@@ -65,23 +69,25 @@ public class WeatherStationProducer {
                 }
                 continue;
             }
-            message.generateWeatherStatusMessage(s_no,currentUnixTimestamp, (Double) temperature.get(count), (Integer) humidity.get(count), (Double) windSpeed.get(count));
+            message.generateWeatherStatusMessage(s_no,timeStart, (Double) temperature.get(count), (Integer) humidity.get(count), (Double) windSpeed.get(count));
             String value = message.toString();
-            count++;
+
             ProducerRecord<String, String> record = new ProducerRecord<>("weather-status-messages",value);
             producer.send(record);
-            //System.out.println("Sent message: " + value);
+            System.out.println("Sent message: " + value);
+            s_no++;
+            timeStart++;
+            count++;
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             if((s_no % 24) == 1) {
-                weather = getData.getData();
+                weather = getData.fetchOpenMeteoData();
                 temperature = weather.getTemperature();
                 humidity = weather.getHumidity();
                 windSpeed = weather.getWindSpeed();
-                System.out.println(temperature.toString());
                 count = 0;
             }
         }
