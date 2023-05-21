@@ -48,7 +48,6 @@ public class WeatherStationProducer {
         JSONArray temperature = weather.getTemperature();
         JSONArray humidity = weather.getHumidity();
         JSONArray windSpeed = weather.getWindSpeed();
-        System.out.println(temperature.toString());
         WeatherStatusMessage message = new WeatherStatusMessage(this.stationId);
         int count = 0;
         long currentUnixTimestamp = (System.currentTimeMillis() / 1000L)-1;
@@ -70,7 +69,7 @@ public class WeatherStationProducer {
             count++;
             ProducerRecord<String, String> record = new ProducerRecord<>("weather-status-messages",value);
             producer.send(record);
-            //System.out.println("Sent message: " + value);
+            System.out.println("Sent message: " + value);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -81,7 +80,6 @@ public class WeatherStationProducer {
                 temperature = weather.getTemperature();
                 humidity = weather.getHumidity();
                 windSpeed = weather.getWindSpeed();
-                System.out.println(temperature.toString());
                 count = 0;
             }
         }
