@@ -46,8 +46,7 @@ public class WeatherStatusMessage {
 
     @Override
     public String toString() {
-        return "WeatherStatusMessage{" +
-                "station_id=" + this.station_id +
+        return "{station_id=" + this.station_id +
                 ", s_no=" + this.s_no +
                 ", battery_status='" + this.battery_status + '\'' +
                 ", status_timestamp=" + this.status_timestamp +
