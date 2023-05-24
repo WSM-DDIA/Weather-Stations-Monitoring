@@ -3,10 +3,13 @@ package baseCentralStation;
 import baseCentralStation.Utilities.*;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CentralStation {
     private static final String bootstrapServers = "localhost:9092";
@@ -37,7 +40,7 @@ public class CentralStation {
         while (true) {
             List<String> records = kafkaAPI.consumeMessages();
             for (String record : records) {
-                if(Parsing.validate(record)){
+                if (Parsing.validate(record)) {
                     System.out.println("Message Received Successfully & is valid");
                     WeatherStatusMessage weatherStatus = new WeatherStatusMessage(Parsing.parse(record));
 
@@ -50,7 +53,7 @@ public class CentralStation {
                     // write data to parquet files
                     writer.write(weatherStatus);
 
-                }else{
+                } else {
                     System.out.println("invalid message");
                     invalidMessageChannel.put("Invalid".getBytes(), record.getBytes());
                 }
