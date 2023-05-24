@@ -8,6 +8,7 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +21,10 @@ public class RainingTriggerProcessor {
     public RainingTriggerProcessor(){
         this.config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "raining-trigger-processor");
-        config.put("bootstrap.servers", "localhost:9092");
+        Map<String, String> env = System.getenv();
+        String kafkaBroker = env.get("KAFKA_BROKER");
+        System.out.println(kafkaBroker);
+        config.put("bootstrap.servers", kafkaBroker);
         config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
     }
