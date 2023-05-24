@@ -44,4 +44,7 @@ public class WeatherStatusMessage implements Serializable {
         return weatherStatusGroup;
     }
 
+    public String toString(){
+        return "station_id: " + stationId + ", s_no: " + sNo + ", battery_status: " + batteryStatus + ", status_timestamp: " + statusTimestamp + ", humidity: " + humidity + ", temperature: " + temperature + ", wind_speed: " + windSpeed;
+    }
 }

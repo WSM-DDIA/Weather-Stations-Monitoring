@@ -74,7 +74,7 @@ public class BitCask {
         File[] files = directory.listFiles();
 
         System.out.println("Checking Compaction");
-        if (Objects.requireNonNull(files).length < 3)
+        if (Objects.requireNonNull(files).length < 7)
             return;
 
         System.out.println("Begin Compaction");
