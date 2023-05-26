@@ -16,7 +16,6 @@ public class BitCask {
     private final String dbDirectory;
     private Map<String, EntryMetaData> keyToEntryMetaData;
 
-
     public BitCask(String dbDirectory) throws FileNotFoundException {
         this.dbDirectory = dbDirectory;
         this.keyToEntryMetaData = new HashMap<>();
@@ -51,11 +50,13 @@ public class BitCask {
     }
 
     public String get(String key) throws IOException {
+        if (!this.keyToEntryMetaData.containsKey(key))
+            return "NOT FOUND";
+
         EntryMetaData entryMetaData = keyToEntryMetaData.get(key);
         byte[] bytes = DiskReader.readEntryValueFromDisk(entryMetaData.getFileID(), entryMetaData.getValuePosition(), entryMetaData.getValueSize());
 
-        String value = new String(bytes, StandardCharsets.UTF_8);
-        return value;
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public void put(String key, String value) throws IOException {
@@ -125,17 +126,35 @@ public class BitCask {
             compactedKeyToEntryMetaData.put(entry.getKey(), entryMetaData);
         }
 
-        var x = Arrays.stream(files)
-                .filter(
-                        file -> !file.getName().endsWith("m") &&
-                                !file.getName().endsWith(activeFileName) &&
-                                (
-                                        file.getName().startsWith(Constants.FILE_PREFIX) ||
-                                                file.getName().startsWith(Constants.HINT_FILE_PREFIX) ||
-                                                file.getName().startsWith(Constants.REPLICA_FILE_PREFIX)
-                                )
-                ).toList();
+        deleteOldFiles(files, activeFileName);
 
+        compactedFile = renameFile(compactedFileName, compactedFile);
+        renameFile(replicaCompactedFileName, replicaCompactedFile);
+
+        createHintFile(compactedKeyToEntryMetaData, compactedFile);
+
+        for (Map.Entry<String, EntryMetaData> entry : compactedKeyToEntryMetaData.entrySet()) {
+            entry.getValue().setFileID(compactedFile.getName());
+            if (keyToEntryMetaData.containsKey(entry.getKey()) &&
+                    keyToEntryMetaData.get(entry.getKey()).getTimestamp() == entry.getValue().getTimestamp() &&
+                    !keyToEntryMetaData.get(entry.getKey()).getFileID().equals(entry.getValue().getFileID())) {
+                keyToEntryMetaData.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        System.out.println("Finish Compaction");
+    }
+
+    private File renameFile(String fileNameToRename, File fileToRename) {
+        File renamedFileWithoutSuffix = new File(fileNameToRename.substring(0, fileNameToRename.length() - 1));
+        boolean rename = fileToRename.renameTo(renamedFileWithoutSuffix);
+        if (!rename)
+            System.out.println("Failed to rename file");
+
+        return renamedFileWithoutSuffix;
+    }
+
+    private void deleteOldFiles(File[] files, String activeFileName) {
         Arrays.stream(files)
                 .filter(
                         file -> !file.getName().endsWith("m") &&
@@ -148,25 +167,6 @@ public class BitCask {
                                 )
                 )
                 .forEach(File::delete);
-
-        File renamedFileWithoutSuffix = new File(compactedFileName.substring(0, compactedFileName.length() - 1));
-        File renamedReplicaFileWithoutSuffix = new File(replicaCompactedFileName.substring(0,
-                replicaCompactedFileName.length() - 1));
-        compactedFile.renameTo(renamedFileWithoutSuffix);
-        replicaCompactedFile.renameTo(renamedReplicaFileWithoutSuffix);
-
-        createHintFile(compactedKeyToEntryMetaData, renamedFileWithoutSuffix);
-
-        for (Map.Entry<String, EntryMetaData> entry : compactedKeyToEntryMetaData.entrySet()) {
-            entry.getValue().setFileID(renamedFileWithoutSuffix.getName());
-            if (keyToEntryMetaData.containsKey(entry.getKey()) &&
-                    keyToEntryMetaData.get(entry.getKey()).getTimestamp() == entry.getValue().getTimestamp() &&
-                    !keyToEntryMetaData.get(entry.getKey()).getFileID().equals(entry.getValue().getFileID())) {
-                keyToEntryMetaData.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        System.out.println("Finish Compaction");
     }
 
     private void createHintFile(Map<String, EntryMetaData> compactedKeyToEntryMetaData, File file) {

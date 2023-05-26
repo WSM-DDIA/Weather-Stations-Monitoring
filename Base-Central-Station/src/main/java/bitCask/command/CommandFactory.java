@@ -11,7 +11,7 @@ public class CommandFactory {
      * @return concrete implementation of {@link Command} interface
      * @throws InvalidCommandException If the given command is an invalid command
      */
-    public static Command parseCommand(String input) throws InvalidCommandException {
+    public Command parseCommand(String input) throws InvalidCommandException {
         int cursor = 0;
         cursor = cleanWhiteSpace(input, cursor);
         if (cursor + 2 >= input.length()) {
@@ -23,6 +23,7 @@ public class CommandFactory {
         if (cursor == input.length()) {
             throw new InvalidCommandException("Operands needs to be specified in the command");
         }
+
         return switch (operation) {
             case "GET" -> parseGetCommand(input, cursor);
             case "SET" -> parseSetCommand(input, cursor);
@@ -30,7 +31,7 @@ public class CommandFactory {
         };
     }
 
-    private static SetCommand parseSetCommand(String input, int cursor) throws InvalidCommandException {
+    private SetCommand parseSetCommand(String input, int cursor) throws InvalidCommandException {
         StringBuilder sb = new StringBuilder();
         while (cursor < input.length() && input.charAt(cursor) != ' ') {
             sb.append(input.charAt(cursor++));
@@ -41,10 +42,11 @@ public class CommandFactory {
         if (cursor == input.length()) {
             throw new InvalidCommandException("SET operation should contain value parameter");
         }
-        while (cursor < input.length() && input.charAt(cursor) != ' ') {
+        while (cursor < input.length()) {
             sb.append(input.charAt(cursor++));
         }
         String value = sb.toString();
+        System.out.println(value);
         cursor = cleanWhiteSpace(input, cursor);
         if (cursor != input.length()) {
             throw new InvalidCommandException("SET operation should not contain parameters in addition to key & value");
@@ -52,12 +54,13 @@ public class CommandFactory {
         return new SetCommand(key, value);
     }
 
-    private static GetCommand parseGetCommand(String input, int cursor) throws InvalidCommandException {
+    private GetCommand parseGetCommand(String input, int cursor) throws InvalidCommandException {
         String key = parseKey(input, cursor);
+        System.out.println(key);
         return new GetCommand(key);
     }
 
-    private static String parseKey(String input, int cursor) throws InvalidCommandException {
+    private String parseKey(String input, int cursor) throws InvalidCommandException {
         StringBuilder sb = new StringBuilder();
         while (cursor < input.length() && input.charAt(cursor) != ' ') {
             sb.append(input.charAt(cursor++));
@@ -70,13 +73,13 @@ public class CommandFactory {
         return key;
     }
 
-    private static int cleanWhiteSpace(String input, int cursor) {
+    private int cleanWhiteSpace(String input, int cursor) {
         while (cursor < input.length() && input.charAt(cursor) == ' ') {
             cursor++;
         }
         return cursor;
     }
 
-    private CommandFactory() {
+    public CommandFactory() {
     }
 }

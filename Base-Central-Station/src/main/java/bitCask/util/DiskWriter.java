@@ -52,23 +52,8 @@ public class DiskWriter {
 
         FileOutputStream compactFileOutputStream = new FileOutputStream(file, true);
         FileOutputStream compactFileOutputStreamReplica = new FileOutputStream(fileReplica, true);
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(compactFileOutputStream);
-        BufferedOutputStream bufferedOutputStreamReplica = new BufferedOutputStream(compactFileOutputStreamReplica);
 
-        byte[] bytesToWrite = bitCaskEntry.toBytes();
-        bufferedOutputStream.write(Ints.toByteArray(bytesToWrite.length));
-        bufferedOutputStreamReplica.write(Ints.toByteArray(bytesToWrite.length));
-
-        bufferedOutputStream.flush();
-        bufferedOutputStreamReplica.flush();
-
-        long valuePosition = file.length() + 8 + 4 + bitCaskEntry.getKeySize() + 4;
-
-        bufferedOutputStream.write(bytesToWrite);
-        bufferedOutputStreamReplica.write(bytesToWrite);
-
-        bufferedOutputStream.flush();
-        bufferedOutputStreamReplica.flush();
+        long valuePosition = writeToTheDisk(bitCaskEntry, compactFileOutputStream, compactFileOutputStreamReplica);
 
         return new DiskResponse(file.getName(), valuePosition);
     }
@@ -79,6 +64,12 @@ public class DiskWriter {
     }
 
     private DiskResponse writeEntry(BitCaskEntry bitCaskEntry) throws IOException {
+        long valuePosition = writeToTheDisk(bitCaskEntry, fileOutputStream, fileOutputStreamReplica);
+
+        return new DiskResponse(fileName, valuePosition);
+    }
+
+    private long writeToTheDisk(BitCaskEntry bitCaskEntry, FileOutputStream fileOutputStream, FileOutputStream fileOutputStreamReplica) throws IOException {
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
         BufferedOutputStream bufferedOutputStreamReplica = new BufferedOutputStream(fileOutputStreamReplica);
 
@@ -99,7 +90,7 @@ public class DiskWriter {
         bufferedOutputStream.flush();
         bufferedOutputStreamReplica.flush();
 
-        return new DiskResponse(fileName, valuePosition);
+        return valuePosition;
     }
 
     private void checkIfFileExceededSize() throws IOException {
