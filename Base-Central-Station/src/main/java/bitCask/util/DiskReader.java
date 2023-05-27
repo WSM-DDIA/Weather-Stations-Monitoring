@@ -35,7 +35,7 @@ public class DiskReader {
 
         while (byteCursor < bytes.length) {
             int entrySize = Ints.fromByteArray(Arrays.copyOfRange(bytes, byteCursor, byteCursor + 4));
-            if (byteCursor + 4 + entrySize >= bytes.length)
+            if (byteCursor + 4 + entrySize > bytes.length)
                 break;
             byte[] entryBytes = Arrays.copyOfRange(bytes, byteCursor + 4, byteCursor + 4 + entrySize);
             byteCursor += 4 + entrySize;
@@ -62,7 +62,7 @@ public class DiskReader {
 
         while (byteCursor < bytes.length) {
             int entrySize = Ints.fromByteArray(Arrays.copyOfRange(bytes, byteCursor, byteCursor + 4));
-            if (byteCursor + 4 + entrySize >= bytes.length)
+            if (byteCursor + 4 + entrySize > bytes.length)
                 break;
 
             byte[] entryBytes = Arrays.copyOfRange(bytes, byteCursor + 4, byteCursor + 4 + entrySize);

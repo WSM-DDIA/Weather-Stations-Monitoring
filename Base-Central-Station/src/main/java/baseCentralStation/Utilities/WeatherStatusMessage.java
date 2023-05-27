@@ -45,6 +45,11 @@ public class WeatherStatusMessage implements Serializable {
     }
 
     public String toString(){
-        return "station_id: " + stationId + ", s_no: " + sNo + ", battery_status: " + batteryStatus + ", status_timestamp: " + statusTimestamp + ", humidity: " + humidity + ", temperature: " + temperature + ", wind_speed: " + windSpeed;
+        return "{station_id:" + this.stationId +
+                ", s_no:" + this.sNo +
+                ", battery_status:'" + this.batteryStatus + '\'' +
+                ", status_timestamp:" + this.statusTimestamp +
+                ", weather:{humidity:" + this.humidity + ", temperature:" + this.temperature + ", wind_speed:" + this.windSpeed + "}" +
+                '}';
     }
 }

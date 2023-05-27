@@ -33,7 +33,7 @@ public class Main {
             } catch (IOException | InvalidCommandException e) {
                 throw new RuntimeException(e);
             }
-        }, 5, 5, TimeUnit.SECONDS);
+        }, 5, 60, TimeUnit.SECONDS);
 
         try (ServerSocket server = new ServerSocket(port)) {
             CommandFactory commandFactory = new CommandFactory();
