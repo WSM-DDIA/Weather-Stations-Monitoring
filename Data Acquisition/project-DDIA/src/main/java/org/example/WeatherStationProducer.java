@@ -4,8 +4,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.JSONArray;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
@@ -18,7 +16,7 @@ public class WeatherStationProducer {
     private String latitude;
     private String longitude;
 
-    public WeatherStationProducer(String stationId,String latitude,String longitude) {
+    public WeatherStationProducer(String stationId, String latitude, String longitude) {
         this.stationId = stationId;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -40,29 +38,26 @@ public class WeatherStationProducer {
 
     private static boolean isDrop() {
         int rand = RANDOM.nextInt(10);
-        if (rand == 1) {
-            return true;
-        } else
-            return false;
+        return rand == 1;
     }
 
-    public int produce(){
+    public int produce() {
         long s_no = 0;
         // Create a Kafka producer
         KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
-        GetData getData = new GetData(this.latitude,this.longitude);
+        GetData getData = new GetData(this.latitude, this.longitude);
         Weather weather = getData.getData();
         JSONArray temperature = weather.getTemperature();
         JSONArray humidity = weather.getHumidity();
         JSONArray windSpeed = weather.getWindSpeed();
         WeatherStatusMessage message = new WeatherStatusMessage(this.stationId);
         int count = 0;
-        long currentUnixTimestamp = (System.currentTimeMillis() / 1000L)-1;
+        long currentUnixTimestamp = (System.currentTimeMillis() / 1000L) - 1;
         while (true) {
             currentUnixTimestamp++;
             s_no++;
-            if(isDrop()){
-                if((s_no % 24) == 1) {
+            if (isDrop()) {
+                if ((s_no % 24) == 1) {
                     weather = getData.getData();
                     temperature = weather.getTemperature();
                     humidity = weather.getHumidity();
@@ -71,10 +66,10 @@ public class WeatherStationProducer {
                 }
                 continue;
             }
-            message.generateWeatherStatusMessage(s_no,currentUnixTimestamp, (Double) temperature.get(count), (Integer) humidity.get(count), (Double) windSpeed.get(count));
+            message.generateWeatherStatusMessage(s_no, currentUnixTimestamp, (Double) temperature.get(count), (Integer) humidity.get(count), (Double) windSpeed.get(count));
             String value = message.toString();
             count++;
-            ProducerRecord<String, String> record = new ProducerRecord<>("weather-status-messages",value);
+            ProducerRecord<String, String> record = new ProducerRecord<>("weather-status-messages", value);
             producer.send(record);
             System.out.println("Sent message: " + value);
             try {
@@ -82,7 +77,7 @@ public class WeatherStationProducer {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if((s_no % 24) == 1) {
+            if ((s_no % 24) == 1) {
                 weather = getData.getData();
                 temperature = weather.getTemperature();
                 humidity = weather.getHumidity();
