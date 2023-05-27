@@ -4,26 +4,15 @@ import baseCentralStation.Utilities.*;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CentralStation {
     private static final String bootstrapServers = "localhost:9092";
-    private static final int bitCaskPort = 8080;
+    private static final int bitCaskPort = 4240;
     private static final String topic = "weather-status-messages";
     private static final String data_dir = "Parquet_Files_Data";
 
-    private static final Map<Long, byte[]> keyStore = new HashMap<>();
-
-
     public static void invoke() throws Exception {
-
-        Parsing parser = new Parsing();
-
         // Initialize KafkaAPI
         KafkaAPI kafkaAPI = new KafkaAPI(bootstrapServers, topic);
 
@@ -45,14 +34,10 @@ public class CentralStation {
                     WeatherStatusMessage weatherStatus = new WeatherStatusMessage(Parsing.parse(record));
 
                     // Update BitCask store
-//                byte[] key = createKey(weatherStatus.getStationId(), weatherStatus.getSNo());
-//                db.put(key, serialize(weatherStatus));
-                    bitCaskClient.sendMessage(weatherStatus.getStationId() + " " + weatherStatus.getSNo(), weatherStatus.toString());
-
+                    bitCaskClient.sendMessage(weatherStatus.getStationId(), weatherStatus.toString());
 
                     // write data to parquet files
                     writer.write(weatherStatus);
-
                 } else {
                     System.out.println("invalid message");
                     invalidMessageChannel.put("Invalid".getBytes(), record.getBytes());
@@ -61,17 +46,4 @@ public class CentralStation {
             }
         }
     }
-
-    private static byte[] createKey(String stationId, String sNo) {
-        return (stationId + "-" + sNo).getBytes();
-    }
-
-    private static byte[] serialize(WeatherStatusMessage weatherStatus) throws IOException {
-        // Use Java serialization for simplicity
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(weatherStatus);
-        return bos.toByteArray();
-    }
-
 }
