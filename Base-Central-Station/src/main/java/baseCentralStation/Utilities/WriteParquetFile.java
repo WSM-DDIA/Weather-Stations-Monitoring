@@ -13,6 +13,7 @@ import org.apache.parquet.schema.OriginalType;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Types;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -60,7 +61,7 @@ public class WriteParquetFile {
                         date.getMonthValue(),
                         date.getDayOfMonth(),
                         "Station_" + weatherStatus.getStationId()
-                ) + "Version_" + parquetVersion.get(weatherStatus.getStationId()) + ".parquet");
+                ) + "Version_" + parquetVersion.get(weatherStatus.getStationId()));
 
         ParquetWriter<Group> writer = writerStore.get(parquetPath);
         if (writer == null) {
@@ -73,12 +74,24 @@ public class WriteParquetFile {
 
         if (parquetSize.get(weatherStatus.getStationId()) >= 50) { // Flush every 1000 records
             writer.close();
+            renameFile(parquetPath.toString(), new File(parquetPath.toString()));
             parquetSize.put(weatherStatus.getStationId(), 0);
             parquetVersion.put(weatherStatus.getStationId(), parquetVersion.get(weatherStatus.getStationId()) + 1);
             writerStore.remove(parquetPath);
         }
 
     }
+
+    private File renameFile(String fileNameToRename, File fileToRename) {
+        File renamedFileWithoutSuffix = new File(fileNameToRename + ".parquet");
+        boolean rename = fileToRename.renameTo(renamedFileWithoutSuffix);
+        if (!rename)
+            System.out.println("Failed to rename file");
+
+        return renamedFileWithoutSuffix;
+    }
+
+
 
     private static ParquetWriter<Group> createParquetWriter(FileSystem fs, Path parquetPath, Configuration conf) throws IOException {
         return  CustomParquetWriter.builder(HadoopOutputFile.fromPath(parquetPath, conf))
