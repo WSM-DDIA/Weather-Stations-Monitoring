@@ -22,6 +22,7 @@ import java.util.Map;
 public class WriteParquetFile {
 
     private static final String parquet_dir = "Parquet_Files_Directory";
+    private static final long time = System.currentTimeMillis();
     private Path rootDir;
     private FileSystem parqfile;
     private Configuration conf;
@@ -61,7 +62,7 @@ public class WriteParquetFile {
                         date.getMonthValue(),
                         date.getDayOfMonth(),
                         "Station_" + weatherStatus.getStationId()
-                ) + "Version_" + parquetVersion.get(weatherStatus.getStationId()));
+                ) + "Version_" + parquetVersion.get(weatherStatus.getStationId()) + "_" + time);
 
         ParquetWriter<Group> writer = writerStore.get(parquetPath);
         if (writer == null) {
@@ -79,7 +80,6 @@ public class WriteParquetFile {
             parquetVersion.put(weatherStatus.getStationId(), parquetVersion.get(weatherStatus.getStationId()) + 1);
             writerStore.remove(parquetPath);
         }
-
     }
 
     private File renameFile(String fileNameToRename, File fileToRename) {

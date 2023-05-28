@@ -46,7 +46,6 @@ public class CommandFactory {
             sb.append(input.charAt(cursor++));
         }
         String value = sb.toString();
-        System.out.println(value);
         cursor = cleanWhiteSpace(input, cursor);
         if (cursor != input.length()) {
             throw new InvalidCommandException("SET operation should not contain parameters in addition to key & value");
