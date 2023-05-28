@@ -8,7 +8,6 @@ import bitCask.util.DiskWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class BitCask {
@@ -56,11 +55,11 @@ public class BitCask {
         EntryMetaData entryMetaData = keyToEntryMetaData.get(key);
         byte[] bytes = DiskReader.readEntryValueFromDisk(entryMetaData.getFileID(), entryMetaData.getValuePosition(), entryMetaData.getValueSize());
 
-        return new String(bytes, StandardCharsets.UTF_8);
+        return BitCaskEntry.parseBytesToValue(bytes);
     }
 
     public void put(String key, String value) throws IOException {
-        BitCaskEntry bitCaskEntry = new BitCaskEntry(key.getBytes().length, value.getBytes().length,
+        BitCaskEntry bitCaskEntry = new BitCaskEntry(key.getBytes().length,
                 System.currentTimeMillis(), key, value);
 
         DiskResponse diskResponse = diskWriter.writeEntryToActiveFile(bitCaskEntry);
@@ -116,7 +115,7 @@ public class BitCask {
 
         for (Map.Entry<String, String> entry : keyToValue.entrySet()) {
             BitCaskEntry bitCaskEntry = new BitCaskEntry(entry.getKey().getBytes().length,
-                    entry.getValue().getBytes().length, compactedKeyToEntryMetaData.get(entry.getKey()).getTimestamp(),
+                    compactedKeyToEntryMetaData.get(entry.getKey()).getTimestamp(),
                     entry.getKey(), entry.getValue());
 
             DiskResponse diskResponse = diskWriter.writeCompacted(bitCaskEntry, compactedFile);
@@ -130,8 +129,8 @@ public class BitCask {
 
         compactedFile = renameFile(compactedFileName, compactedFile);
         renameFile(replicaCompactedFileName, replicaCompactedFile);
-
-        createHintFile(compactedKeyToEntryMetaData, compactedFile);
+        String hintFileName = firstFile.getParent() + '/' + Constants.HINT_FILE_PREFIX + firstFile.getName().substring(8) + 'm';
+        renameFile(hintFileName, new File(hintFileName));
 
         for (Map.Entry<String, EntryMetaData> entry : compactedKeyToEntryMetaData.entrySet()) {
             entry.getValue().setFileID(compactedFile.getName());
@@ -167,13 +166,5 @@ public class BitCask {
                                 )
                 )
                 .forEach(File::delete);
-    }
-
-    private void createHintFile(Map<String, EntryMetaData> compactedKeyToEntryMetaData, File file) {
-        try {
-            diskWriter.writeHintFileToDisk(file.getName(), compactedKeyToEntryMetaData);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

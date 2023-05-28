@@ -21,8 +21,8 @@ public class DiskWriter {
         String hintFilePath = directoryPath + Constants.HINT_FILE_PREFIX + fileName;
         File hintFile = new File(hintFilePath);
 
-        if (!hintFile.exists() && hintFile.createNewFile())
-            System.out.println("Created hint file: " + hintFilePath);
+        if (!hintFile.exists())
+            hintFile.createNewFile();
 
         FileOutputStream hintFileOutputStream = new FileOutputStream(hintFile, true);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(hintFileOutputStream);
@@ -37,23 +37,13 @@ public class DiskWriter {
         }
     }
 
-    public void writeHintFileToDisk(String fileName, Map<String, EntryMetaData> compactedKeyToEntryMetaData) throws IOException {
-        for (Map.Entry<String, EntryMetaData> entry : compactedKeyToEntryMetaData.entrySet()) {
-            try {
-                writeEntryToHintFile(fileName, entry.getValue(), entry.getKey());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public DiskResponse writeCompacted(BitCaskEntry bitCaskEntry, File file) throws IOException {
         File fileReplica = new File(directoryPath + "replica_" + file.getName());
 
         FileOutputStream compactFileOutputStream = new FileOutputStream(file, true);
         FileOutputStream compactFileOutputStreamReplica = new FileOutputStream(fileReplica, true);
 
-        long valuePosition = writeToTheDisk(bitCaskEntry, compactFileOutputStream, compactFileOutputStreamReplica);
+        long valuePosition = writeToTheDisk(bitCaskEntry, file, compactFileOutputStream, compactFileOutputStreamReplica);
 
         return new DiskResponse(file.getName(), valuePosition);
     }
@@ -64,12 +54,12 @@ public class DiskWriter {
     }
 
     private DiskResponse writeEntry(BitCaskEntry bitCaskEntry) throws IOException {
-        long valuePosition = writeToTheDisk(bitCaskEntry, fileOutputStream, fileOutputStreamReplica);
+        long valuePosition = writeToTheDisk(bitCaskEntry, this.file, fileOutputStream, fileOutputStreamReplica);
 
         return new DiskResponse(fileName, valuePosition);
     }
 
-    private long writeToTheDisk(BitCaskEntry bitCaskEntry, FileOutputStream fileOutputStream, FileOutputStream fileOutputStreamReplica) throws IOException {
+    private long writeToTheDisk(BitCaskEntry bitCaskEntry, File file, FileOutputStream fileOutputStream, FileOutputStream fileOutputStreamReplica) throws IOException {
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
         BufferedOutputStream bufferedOutputStreamReplica = new BufferedOutputStream(fileOutputStreamReplica);
 
@@ -81,8 +71,8 @@ public class DiskWriter {
         bufferedOutputStreamReplica.flush();
 
         long valuePosition = file.length() + 8 + 4 + bitCaskEntry.getKeySize() + 4;
-        writeEntryToHintFile(fileName, new EntryMetaData(bitCaskEntry.getValueSize(), valuePosition,
-                bitCaskEntry.getTimestamp(), fileName), bitCaskEntry.getKey());
+        writeEntryToHintFile(file.getName(), new EntryMetaData(bitCaskEntry.getValueSize(), valuePosition,
+                bitCaskEntry.getTimestamp(), file.getName()), bitCaskEntry.getKey());
 
         bufferedOutputStream.write(bytesToWrite);
         bufferedOutputStreamReplica.write(bytesToWrite);
@@ -94,7 +84,7 @@ public class DiskWriter {
     }
 
     private void checkIfFileExceededSize() throws IOException {
-        if (file.length() >= 1048576L)
+        if (file.length() >= Constants.MEMORY_LIMIT)
             createNewFile();
     }
 
