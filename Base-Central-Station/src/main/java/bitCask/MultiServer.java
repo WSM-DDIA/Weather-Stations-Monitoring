@@ -55,6 +55,7 @@ public class MultiServer {
                         out.write(-1);
                         out.flush();
                     } else {
+                        System.out.println("Response is OK");
                         out.write(response);
                         out.flush();
                     }

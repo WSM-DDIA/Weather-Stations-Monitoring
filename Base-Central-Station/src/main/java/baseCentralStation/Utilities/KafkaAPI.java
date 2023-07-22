@@ -1,15 +1,20 @@
 package baseCentralStation.Utilities;
 
-import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 public class KafkaAPI {
 
-    private String topic;
-    private Properties props;
+    private final String topic;
+    private final Properties props;
 
     public KafkaAPI(String bootstrapServers, String topic) {
         this.topic = topic;

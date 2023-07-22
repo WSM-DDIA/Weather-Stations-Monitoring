@@ -34,7 +34,7 @@ public class CustomParquetWriter extends ParquetWriter<Group> {
 
     public static class Builder extends ParquetWriter.Builder<Group, Builder> {
         private MessageType type = null;
-        private Map<String, String> extraMetaData = new HashMap<String, String>();
+        private final Map<String, String> extraMetaData = new HashMap<>();
 
         private Builder(OutputFile file) {
             super(file);
