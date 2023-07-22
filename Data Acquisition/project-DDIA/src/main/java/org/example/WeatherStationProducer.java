@@ -24,7 +24,7 @@ public class WeatherStationProducer {
         // Set up Kafka producer properties
         Map<String, String> env = System.getenv();
 //        properties.put("bootstrap.servers", "localhost:9092");
-        String kafkaBroker = env.get("KAFKA_BROKER");
+        String kafkaBroker = "localhost:9092";
         System.out.println(kafkaBroker);
         properties.put("bootstrap.servers", kafkaBroker);
         properties.put("acks", "all");

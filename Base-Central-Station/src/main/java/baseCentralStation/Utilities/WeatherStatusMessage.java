@@ -1,11 +1,15 @@
 package baseCentralStation.Utilities;
 
+import baseCentralStation.proto.WeatherStatus;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
 import lombok.Data;
 import org.apache.parquet.example.data.Group;
 import org.apache.parquet.example.data.GroupFactory;
 import org.apache.parquet.example.data.simple.SimpleGroupFactory;
 import org.apache.parquet.schema.MessageType;
-
+import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -21,7 +25,7 @@ public class WeatherStatusMessage implements Serializable {
     private String temperature;
     private String windSpeed;
 
-    public WeatherStatusMessage(HashMap<String, String> msg){
+    public WeatherStatusMessage(HashMap<String, String> msg) {
         this.stationId = msg.get("station_id");
         this.sNo = msg.get("s_no");
         this.batteryStatus = msg.get("battery_status");
@@ -31,7 +35,31 @@ public class WeatherStatusMessage implements Serializable {
         this.windSpeed = msg.get("wind_speed");
     }
 
-    public Group toGroup(MessageType schema){
+    public static String parseProtoBufBytesToValue(byte[] valueBytes) throws InvalidProtocolBufferException {
+        WeatherStatus builder = WeatherStatus.newBuilder().mergeFrom(valueBytes).build();
+
+        baseCentralStation.proto.WeatherStatusMessage weatherStatusMessage = baseCentralStation.proto.WeatherStatusMessage.builder()
+                .stationId(builder.getStationId())
+                .sNo(builder.getSNo())
+                .batteryStatus(builder.getBatteryStatus())
+                .statusTimestamp(builder.getStatusTimestamp())
+                .humidity(builder.getWeather().getHumidity())
+                .temperature(builder.getWeather().getTemperature())
+                .windSpeed(builder.getWeather().getWindSpeed())
+                .build();
+        return weatherStatusMessage.toJsonString();
+    }
+
+    protected static byte[] parseValueToBytesArray(String value) throws InvalidProtocolBufferException {
+        JSONObject weatherStatusJson = new JSONObject(value);
+        WeatherStatus.Builder builder = WeatherStatus.newBuilder();
+        JsonFormat.parser().merge(weatherStatusJson.toString(), builder);
+        Message weatherStatusMessage = builder.build();
+
+        return weatherStatusMessage.toByteArray();
+    }
+
+    public Group toGroup(MessageType schema) {
         GroupFactory groupFactory = new SimpleGroupFactory(schema);
         Group weatherStatusGroup = groupFactory.newGroup();
         weatherStatusGroup.add("station_id", Long.parseLong(stationId));
@@ -44,7 +72,7 @@ public class WeatherStatusMessage implements Serializable {
         return weatherStatusGroup;
     }
 
-    public String toString(){
+    public String toString() {
         return "{station_id:" + this.stationId +
                 ", s_no:" + this.sNo +
                 ", battery_status:'" + this.batteryStatus + '\'' +

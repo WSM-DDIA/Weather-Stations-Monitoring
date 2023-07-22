@@ -1,11 +1,11 @@
 package bitCask.util;
 
-import com.google.common.primitives.Ints;
 import bitCask.storage.BitCaskEntry;
 import bitCask.storage.EntryMetaData;
+import com.google.common.primitives.Ints;
 
 import java.io.*;
-import java.util.Map;
+import java.util.Arrays;
 
 public class DiskWriter {
     String directoryPath, fileName, fileNameReplica;
@@ -72,7 +72,7 @@ public class DiskWriter {
 
         long valuePosition = file.length() + 8 + 4 + bitCaskEntry.getKeySize() + 4;
         writeEntryToHintFile(file.getName(), new EntryMetaData(bitCaskEntry.getValueSize(), valuePosition,
-                bitCaskEntry.getTimestamp(), file.getName()), bitCaskEntry.getKey());
+                bitCaskEntry.getTimestamp(), file.getName()), Arrays.toString(bitCaskEntry.getKey()));
 
         bufferedOutputStream.write(bytesToWrite);
         bufferedOutputStreamReplica.write(bytesToWrite);

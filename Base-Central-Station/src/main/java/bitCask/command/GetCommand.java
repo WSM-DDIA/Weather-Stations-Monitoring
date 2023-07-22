@@ -1,14 +1,16 @@
 package bitCask.command;
 
 import bitCask.storage.BitCask;
+import com.google.common.primitives.Ints;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public record GetCommand(String key) implements Command {
     @Override
-    public void execute(BitCask bitCask) {
+    public String execute(BitCask bitCask) {
         try {
-            System.out.println(bitCask.get(key));
+            return Arrays.toString(bitCask.get(Ints.toByteArray(Integer.parseInt(key))));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

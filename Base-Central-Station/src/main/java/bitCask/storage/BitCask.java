@@ -4,16 +4,17 @@ import bitCask.util.Constants;
 import bitCask.util.DiskReader;
 import bitCask.util.DiskResponse;
 import bitCask.util.DiskWriter;
+import com.google.common.primitives.Ints;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
-public class BitCask {
+public class BitCask implements IBitCask {
     private final DiskWriter diskWriter;
     private final String dbDirectory;
-    private Map<String, EntryMetaData> keyToEntryMetaData;
+    private Map<Integer, EntryMetaData> keyToEntryMetaData;
 
     public BitCask(String dbDirectory) throws FileNotFoundException {
         this.dbDirectory = dbDirectory;
@@ -48,27 +49,40 @@ public class BitCask {
         }
     }
 
-    public String get(String key) throws IOException {
-        if (!this.keyToEntryMetaData.containsKey(key))
-            return "NOT FOUND";
+    @Override
+    public byte[] get(byte[] key) throws IOException {
+        int keyValue = Ints.fromByteArray(key);
 
-        EntryMetaData entryMetaData = keyToEntryMetaData.get(key);
-        byte[] bytes = DiskReader.readEntryValueFromDisk(entryMetaData.getFileID(), entryMetaData.getValuePosition(), entryMetaData.getValueSize());
+        if (!this.keyToEntryMetaData.containsKey(keyValue))
+            return null;
 
-        return BitCaskEntry.parseBytesToValue(bytes);
+        EntryMetaData entryMetaData = keyToEntryMetaData.get(keyValue);
+
+        return DiskReader.readEntryValueFromDisk(entryMetaData.getFileID(), entryMetaData.getValuePosition(), entryMetaData.getValueSize());
     }
 
-    public void put(String key, String value) throws IOException {
-        BitCaskEntry bitCaskEntry = new BitCaskEntry(key.getBytes().length,
-                System.currentTimeMillis(), key, value);
+    @Override
+    public void delete(byte[] key) {
+        throw new UnsupportedOperationException("Unimplemented method 'Delete'");
+    }
+
+    @Override
+    public int open(File directory) throws IOException {
+        throw new UnsupportedOperationException("Unimplemented method 'Open'");
+    }
+
+    @Override
+    public void put(byte[] key, byte[] value) throws IOException {
+        BitCaskEntry bitCaskEntry = new BitCaskEntry(key.length, System.currentTimeMillis(), key, value);
 
         DiskResponse diskResponse = diskWriter.writeEntryToActiveFile(bitCaskEntry);
         EntryMetaData entryMetaData = new EntryMetaData(bitCaskEntry.getValueSize(), diskResponse.getValuePosition(),
                 bitCaskEntry.getTimestamp(), diskResponse.getFileName());
 
-        keyToEntryMetaData.put(key, entryMetaData);
+        keyToEntryMetaData.put(Ints.fromByteArray(key), entryMetaData);
     }
 
+    @Override
     public void mergeAndCompaction() throws IOException {
         File directory = new File(dbDirectory);
         File[] files = directory.listFiles();
@@ -79,8 +93,8 @@ public class BitCask {
 
         System.out.println("Begin Compaction");
 
-        Map<String, EntryMetaData> compactedKeyToEntryMetaData = new HashMap<>();
-        Map<String, String> keyToValue = new HashMap<>();
+        Map<Integer, EntryMetaData> compactedKeyToEntryMetaData = new HashMap<>();
+        Map<Integer, byte[]> keyToValue = new HashMap<>();
 
         List<File> filesToCompact = Arrays.stream(files)
                 .filter(file -> file.getName().startsWith("replica_"))
@@ -93,8 +107,8 @@ public class BitCask {
 
         String activeFileName = filesToCompact.get(0).getName().substring(8);
         for (int i = 1; i < filesToCompact.size(); i++) {
-            Map<String, String> tempKeyToValue = DiskReader.readEntriesFromDisk(filesToCompact.get(i).getName(), compactedKeyToEntryMetaData);
-            for (Map.Entry<String, String> entry : tempKeyToValue.entrySet()) {
+            Map<Integer, byte[]> tempKeyToValue = DiskReader.readEntriesFromDisk(filesToCompact.get(i).getName(), compactedKeyToEntryMetaData);
+            for (Map.Entry<Integer, byte[]> entry : tempKeyToValue.entrySet()) {
                 if (!keyToValue.containsKey(entry.getKey())) {
                     keyToValue.put(entry.getKey(), entry.getValue());
                 }
@@ -113,10 +127,14 @@ public class BitCask {
             throw new IOException("Failed to create compacted file");
         }
 
-        for (Map.Entry<String, String> entry : keyToValue.entrySet()) {
-            BitCaskEntry bitCaskEntry = new BitCaskEntry(entry.getKey().getBytes().length,
+        for (Map.Entry<Integer, byte[]> entry : keyToValue.entrySet()) {
+            byte[] key = Ints.toByteArray(entry.getKey());
+            BitCaskEntry bitCaskEntry = new BitCaskEntry(
+                    key.length,
                     compactedKeyToEntryMetaData.get(entry.getKey()).getTimestamp(),
-                    entry.getKey(), entry.getValue());
+                    key,
+                    entry.getValue()
+            );
 
             DiskResponse diskResponse = diskWriter.writeCompacted(bitCaskEntry, compactedFile);
             EntryMetaData entryMetaData = new EntryMetaData(bitCaskEntry.getValueSize(), diskResponse.getValuePosition(),
@@ -132,7 +150,7 @@ public class BitCask {
         String hintFileName = firstFile.getParent() + '/' + Constants.HINT_FILE_PREFIX + firstFile.getName().substring(8) + 'm';
         renameFile(hintFileName, new File(hintFileName));
 
-        for (Map.Entry<String, EntryMetaData> entry : compactedKeyToEntryMetaData.entrySet()) {
+        for (Map.Entry<Integer, EntryMetaData> entry : compactedKeyToEntryMetaData.entrySet()) {
             entry.getValue().setFileID(compactedFile.getName());
             if (keyToEntryMetaData.containsKey(entry.getKey()) &&
                     keyToEntryMetaData.get(entry.getKey()).getTimestamp() == entry.getValue().getTimestamp() &&

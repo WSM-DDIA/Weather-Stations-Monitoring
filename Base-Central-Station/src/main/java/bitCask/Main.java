@@ -1,8 +1,6 @@
 package bitCask;
 
-import bitCask.command.Command;
 import bitCask.command.CommandFactory;
-import bitCask.exception.InvalidCommandException;
 import bitCask.storage.BitCask;
 
 import java.io.FileNotFoundException;
@@ -21,14 +19,9 @@ public class Main {
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
-                CommandFactory commandFactory = new CommandFactory();
                 System.out.println("initiating merge and compaction");
                 bitCask.mergeAndCompaction();
-                for (int i = 1; i <= 10; i++) {
-                    Command command = commandFactory.parseCommand("get " + i);
-                    command.execute(bitCask);
-                }
-            } catch (IOException | InvalidCommandException e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }, 5, 30, TimeUnit.SECONDS);

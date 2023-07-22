@@ -22,7 +22,7 @@ public class RainingTriggerProcessor {
         this.config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "raining-trigger-processor");
         Map<String, String> env = System.getenv();
-        String kafkaBroker = env.get("KAFKA_BROKER");
+        String kafkaBroker = "localhost:9092";
         System.out.println(kafkaBroker);
         config.put("bootstrap.servers", kafkaBroker);
         config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());

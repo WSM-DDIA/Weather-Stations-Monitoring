@@ -1,38 +1,31 @@
 package bitCask.storage;
 
-import bitCask.proto.WeatherStatus;
-import bitCask.proto.WeatherStatusMessage;
-import com.google.protobuf.Message;
-import com.google.protobuf.util.JsonFormat;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class BitCaskEntry {
     int valueSize, keySize;
     long timestamp;
-    String value, key;
+    byte[] value, key;
 
-    public BitCaskEntry(int keySize, long timestamp, String key, String value) throws InvalidProtocolBufferException {
-        this.valueSize = parseValueToBytesArray(value).length;
+    public BitCaskEntry(int keySize, long timestamp, byte[] key, byte[] value) {
+        this.valueSize = value.length;
         this.keySize = keySize;
         this.timestamp = timestamp;
         this.value = value;
         this.key = key;
     }
 
-    public static BitCaskEntry buildEntryFromBytes(byte[] bytes) throws InvalidProtocolBufferException {
+    public static BitCaskEntry buildEntryFromBytes(byte[] bytes) {
         long timestamp = parseBytesToTimestamp(bytes);
         int keySize = parseBytesToKeySize(bytes);
         int valueSize = parseBytesToValueSize(bytes, keySize);
-        String key = parseBytesToKey(bytes, keySize);
-        String value = parseBytesToValue(bytes, keySize, valueSize);
+        byte[] key = extractKeyBytes(bytes, keySize);
+        byte[] value = extractValueBytes(bytes, keySize, valueSize);
         return new BitCaskEntry(keySize, timestamp, key, value);
     }
 
@@ -51,52 +44,21 @@ public class BitCaskEntry {
         return Ints.fromByteArray(keySizeBytes);
     }
 
-    private static String parseBytesToValue(byte[] bytes, int keySize, int valueSize) throws InvalidProtocolBufferException {
-        byte[] valueBytes = Arrays.copyOfRange(bytes, keySize + 16, keySize + 16 + valueSize);
-
-        return parseProtoBufBytesToValue(valueBytes);
+    private static byte[] extractValueBytes(byte[] bytes, int keySize, int valueSize) {
+        return Arrays.copyOfRange(bytes, keySize + 16, keySize + 16 + valueSize);
     }
 
-    public static String parseBytesToValue(byte[] bytes) throws InvalidProtocolBufferException {
-        return parseProtoBufBytesToValue(bytes);
-    }
-
-    private static String parseProtoBufBytesToValue(byte[] valueBytes) throws InvalidProtocolBufferException {
-        WeatherStatus builder = WeatherStatus.newBuilder().mergeFrom(valueBytes).build();
-
-        WeatherStatusMessage weatherStatusMessage = WeatherStatusMessage.builder()
-                .stationId(builder.getStationId())
-                .sNo(builder.getSNo())
-                .batteryStatus(builder.getBatteryStatus())
-                .statusTimestamp(builder.getStatusTimestamp())
-                .humidity(builder.getWeather().getHumidity())
-                .temperature(builder.getWeather().getTemperature())
-                .windSpeed(builder.getWeather().getWindSpeed())
-                .build();
-        return weatherStatusMessage.toJsonString();
-    }
-
-    private static String parseBytesToKey(byte[] bytes, int keySize) {
-        byte[] keyBytes = Arrays.copyOfRange(bytes, 12, keySize + 12);
-        return new String(keyBytes, StandardCharsets.UTF_8);
-    }
-
-    private static byte[] parseValueToBytesArray(String value) throws InvalidProtocolBufferException {
-        JSONObject weatherStatusJson = new JSONObject(value);
-        WeatherStatus.Builder builder = WeatherStatus.newBuilder();
-        JsonFormat.parser().merge(weatherStatusJson.toString(), builder);
-        Message weatherStatusMessage = builder.build();
-
-        return weatherStatusMessage.toByteArray();
+    private static byte[] extractKeyBytes(byte[] bytes, int keySize) {
+        return Arrays.copyOfRange(bytes, 12, keySize + 12);
     }
 
     public byte[] toBytes() throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(Longs.toByteArray(timestamp));
         byteArrayOutputStream.write(Ints.toByteArray(keySize));
-        byteArrayOutputStream.write(key.getBytes());
+        byteArrayOutputStream.write(key);
         byteArrayOutputStream.write(Ints.toByteArray(valueSize));
-        byteArrayOutputStream.write(parseValueToBytesArray(value));
+        byteArrayOutputStream.write(value);
 
         return byteArrayOutputStream.toByteArray();
     }
@@ -113,11 +75,11 @@ public class BitCaskEntry {
         return timestamp;
     }
 
-    public String getValue() {
+    public byte[] getValue() {
         return value;
     }
 
-    public String getKey() {
+    public byte[] getKey() {
         return key;
     }
 }
