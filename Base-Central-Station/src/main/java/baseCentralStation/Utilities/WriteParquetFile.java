@@ -21,11 +21,11 @@ import java.util.Map;
 
 public class WriteParquetFile {
 
-    private static final String parquet_dir = "Parquet_Files_Directory";
+    private static final String parquetDirectory = "Parquet_Files_Directory";
     private static final long time = System.currentTimeMillis();
-    private Path rootDir;
-    private FileSystem parqfile;
-    private Configuration conf;
+    private final Path rootDirectory;
+    private final FileSystem parquetFile;
+    private final Configuration configuration;
     private static final MessageType parquetSchema = Types.buildMessage()
             .required(PrimitiveType.PrimitiveTypeName.INT64).named("station_id")
             .required(PrimitiveType.PrimitiveTypeName.INT64).named("s_no")
@@ -41,22 +41,22 @@ public class WriteParquetFile {
 
     public WriteParquetFile() throws IOException {
         // Initialize HDFS
-        this.conf = new Configuration();
-        this.parqfile = FileSystem.get(this.conf);
-        this.rootDir = new Path(this.parquet_dir);
-        if (!this.parqfile.exists(rootDir)) {
-            this.parqfile.mkdirs(rootDir);
+        this.configuration = new Configuration();
+        this.parquetFile = FileSystem.get(this.configuration);
+        this.rootDirectory = new Path(parquetDirectory);
+        if (!this.parquetFile.exists(rootDirectory)) {
+            this.parquetFile.mkdirs(rootDirectory);
         }
 
         for (int i = 1 ; i <= 10 ; i++){
-            this.parquetVersion.put(String.valueOf(i), 1);
-            this.parquetSize.put(String.valueOf(i), 0);
+            parquetVersion.put(String.valueOf(i), 1);
+            parquetSize.put(String.valueOf(i), 0);
         }
     }
 
     public void write(WeatherStatusMessage weatherStatus) throws IOException {
         LocalDate date = LocalDate.ofEpochDay(Long.parseLong(weatherStatus.getStatusTimestamp()) / 86400);
-        Path parquetPath = new Path(rootDir,
+        Path parquetPath = new Path(rootDirectory,
                 String.format("%04d/%02d/%02d/%s/",
                         date.getYear(),
                         date.getMonthValue(),
@@ -66,7 +66,7 @@ public class WriteParquetFile {
 
         ParquetWriter<Group> writer = writerStore.get(parquetPath);
         if (writer == null) {
-            writer = createParquetWriter(parqfile, parquetPath, conf);
+            writer = createParquetWriter(parquetPath, configuration);
             writerStore.put(parquetPath, writer);
         }
 
@@ -82,18 +82,16 @@ public class WriteParquetFile {
         }
     }
 
-    private File renameFile(String fileNameToRename, File fileToRename) {
+    private void renameFile(String fileNameToRename, File fileToRename) {
         File renamedFileWithoutSuffix = new File(fileNameToRename + ".parquet");
         boolean rename = fileToRename.renameTo(renamedFileWithoutSuffix);
         if (!rename)
             System.out.println("Failed to rename file");
-
-        return renamedFileWithoutSuffix;
     }
 
 
 
-    private static ParquetWriter<Group> createParquetWriter(FileSystem fs, Path parquetPath, Configuration conf) throws IOException {
+    private static ParquetWriter<Group> createParquetWriter(Path parquetPath, Configuration conf) throws IOException {
         return  CustomParquetWriter.builder(HadoopOutputFile.fromPath(parquetPath, conf))
                 .withType(parquetSchema)
                 .withCompressionCodec(CompressionCodecName.SNAPPY)

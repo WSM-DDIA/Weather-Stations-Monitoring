@@ -1,4 +1,4 @@
-package bitCask.proto;
+package baseCentralStation.proto;
 
 import lombok.Builder;
 import lombok.Data;

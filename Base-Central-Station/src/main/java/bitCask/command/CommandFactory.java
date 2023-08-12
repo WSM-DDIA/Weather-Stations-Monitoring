@@ -4,6 +4,9 @@ import bitCask.exception.InvalidCommandException;
 
 public class CommandFactory {
 
+    public CommandFactory() {
+    }
+
     /**
      * Parses given input String to a concrete {@link Command} implementation
      *
@@ -77,8 +80,5 @@ public class CommandFactory {
             cursor++;
         }
         return cursor;
-    }
-
-    public CommandFactory() {
     }
 }

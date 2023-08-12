@@ -17,7 +17,7 @@ public class CustomGroupWriteSupport extends WriteSupport<Group> {
     public static final String PARQUET_EXAMPLE_SCHEMA = "parquet.example.schema";
     private MessageType schema;
     private GroupWriter groupWriter;
-    private Map<String, String> extraMetaData;
+    private final Map<String, String> extraMetaData;
     CustomGroupWriteSupport(MessageType schema, Map<String, String> extraMetaData) {
         this.schema = schema;
         this.extraMetaData = extraMetaData;

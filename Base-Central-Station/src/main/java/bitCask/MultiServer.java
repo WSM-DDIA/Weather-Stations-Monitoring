@@ -1,14 +1,11 @@
 package bitCask;
 
-import bitCask.command.Command;
-import bitCask.command.CommandFactory;
 import bitCask.exception.InvalidCommandException;
+import bitCask.handler.HandlerFactory;
+import bitCask.handler.MessageHandler;
 import bitCask.storage.BitCask;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -39,18 +36,29 @@ public class MultiServer {
 
         public void run() {
             try {
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(clientSocket.getInputStream()));
+                DataOutputStream out = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
+                DataInputStream in = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
 
-                CommandFactory commandFactory = new CommandFactory();
+                HandlerFactory handlerFactory = new HandlerFactory();
                 System.out.println("connected");
-                String input;
-                while ((input = in.readLine()) != null) {
-                    Command command = commandFactory.parseCommand(input);
-                    command.execute(bitCask);
-                    System.out.println(input);
-                    out.println(bitCask.get(input.split(" ")[1]));
+
+                while (!clientSocket.isClosed()) {
+                    if (in.available() <= 0)
+                        continue;
+
+                    byte[] message = in.readNBytes(in.available());
+
+                    MessageHandler messageHandler = handlerFactory.parseMessage(message);
+                    byte[] response = messageHandler.execute(bitCask);
+
+                    if (response == null) {
+                        out.write(-1);
+                        out.flush();
+                    } else {
+                        System.out.println("Response is OK");
+                        out.write(response);
+                        out.flush();
+                    }
                 }
 
                 in.close();

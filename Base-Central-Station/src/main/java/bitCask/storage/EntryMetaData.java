@@ -42,13 +42,13 @@ public class EntryMetaData {
         return Longs.fromByteArray(valuePositionBytes);
     }
 
-    public byte[] toBytes(String key, long valuePosition) throws IOException {
+    public byte[] toBytes(byte[] key, long valuePosition) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(Longs.toByteArray(timestamp));
-        byteArrayOutputStream.write(Ints.toByteArray(key.getBytes().length));
+        byteArrayOutputStream.write(Ints.toByteArray(key.length));
         byteArrayOutputStream.write(Ints.toByteArray(valueSize));
         byteArrayOutputStream.write(Longs.toByteArray(valuePosition));
-        byteArrayOutputStream.write(key.getBytes());
+        byteArrayOutputStream.write(key);
 
         return byteArrayOutputStream.toByteArray();
     }

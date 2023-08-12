@@ -1,11 +1,10 @@
 package bitCask.util;
 
-import com.google.common.primitives.Ints;
 import bitCask.storage.BitCaskEntry;
 import bitCask.storage.EntryMetaData;
+import com.google.common.primitives.Ints;
 
 import java.io.*;
-import java.util.Map;
 
 public class DiskWriter {
     String directoryPath, fileName, fileNameReplica;
@@ -17,8 +16,8 @@ public class DiskWriter {
         createNewFile();
     }
 
-    public void writeEntryToHintFile(String fileName, EntryMetaData entryMetaData, String key) throws IOException {
-        String hintFilePath = directoryPath + Constants.HINT_FILE_PREFIX + fileName;
+    public void writeEntryToHintFile(String fileName, EntryMetaData entryMetaData, byte[] key) throws IOException {
+        String hintFilePath = getHintFilePath(fileName);
         File hintFile = new File(hintFilePath);
 
         if (!hintFile.exists())
@@ -37,8 +36,17 @@ public class DiskWriter {
         }
     }
 
+    private String getHintFilePath(String fileName) {
+        String path = directoryPath + DirectoryConstants.getFileTimeStamp(fileName) + DirectoryConstants.HintExtension;
+
+        if (fileName.endsWith("m"))
+            path += "m";
+
+        return path;
+    }
+
     public DiskResponse writeCompacted(BitCaskEntry bitCaskEntry, File file) throws IOException {
-        File fileReplica = new File(directoryPath + "replica_" + file.getName());
+        File fileReplica = new File(getReplicaFilePath(file.getName()));
 
         FileOutputStream compactFileOutputStream = new FileOutputStream(file, true);
         FileOutputStream compactFileOutputStreamReplica = new FileOutputStream(fileReplica, true);
@@ -46,6 +54,15 @@ public class DiskWriter {
         long valuePosition = writeToTheDisk(bitCaskEntry, file, compactFileOutputStream, compactFileOutputStreamReplica);
 
         return new DiskResponse(file.getName(), valuePosition);
+    }
+
+    private String getReplicaFilePath(String fileName) {
+        String path = directoryPath + DirectoryConstants.getFileTimeStamp(fileName) + DirectoryConstants.ReplicaExtension;
+
+        if (fileName.endsWith("m"))
+            path += "m";
+
+        return path;
     }
 
     public DiskResponse writeEntryToActiveFile(BitCaskEntry bitCaskEntry) throws IOException {
@@ -84,14 +101,14 @@ public class DiskWriter {
     }
 
     private void checkIfFileExceededSize() throws IOException {
-        if (file.length() >= Constants.MEMORY_LIMIT)
+        if (file.length() >= DirectoryConstants.MEMORY_LIMIT)
             createNewFile();
     }
 
     private void createNewFile() throws FileNotFoundException {
         long timestamp = System.currentTimeMillis();
-        fileName = Constants.FILE_PREFIX + timestamp;
-        fileNameReplica = Constants.REPLICA_FILE_PREFIX + timestamp;
+        fileName = timestamp + DirectoryConstants.DataExtension;
+        fileNameReplica = timestamp + DirectoryConstants.ReplicaExtension;
 
         String filePath = directoryPath + fileName;
         String replicaFilePath = directoryPath + fileNameReplica;

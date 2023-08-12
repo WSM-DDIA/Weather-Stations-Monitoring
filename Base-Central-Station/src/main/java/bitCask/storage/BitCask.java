@@ -1,43 +1,48 @@
 package bitCask.storage;
 
-import bitCask.util.Constants;
+import bitCask.exception.DirectoryNotFoundException;
+import bitCask.util.DirectoryConstants;
 import bitCask.util.DiskReader;
-import bitCask.util.DiskResponse;
 import bitCask.util.DiskWriter;
+import com.google.common.primitives.Ints;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-public class BitCask {
-    private final DiskWriter diskWriter;
-    private final String dbDirectory;
-    private Map<String, EntryMetaData> keyToEntryMetaData;
+public class BitCask implements IBitCask {
+    private final BitCaskFacade bitCaskFacade = new BitCaskFacade(this);
+    public int status = 400;
+    private DiskWriter diskWriter;
+    private String dbDirectory;
+    private Map<Integer, EntryMetaData> keyToEntryMetaData;
 
-    public BitCask(String dbDirectory) throws FileNotFoundException {
-        this.dbDirectory = dbDirectory;
+    public BitCask() {
         this.keyToEntryMetaData = new HashMap<>();
-        DiskReader.setDbDirectory(this.dbDirectory);
-        reConstruct();
-        this.diskWriter = new DiskWriter(this.dbDirectory);
+    }
+
+    public DiskWriter getDiskWriter() {
+        return diskWriter;
+    }
+
+    public Map<Integer, EntryMetaData> getKeyToEntryMetaData() {
+        return keyToEntryMetaData;
     }
 
     private void reConstruct() {
         File directory = new File(dbDirectory);
         File[] files = directory.listFiles();
-        List<File> filesToReConstruct = Arrays.stream(Objects.requireNonNull(files))
-                .filter(file -> file.getName().startsWith("file_"))
-                .sorted((o1, o2) -> {
-                    long l1 = Long.parseLong(o1.getName().split("_")[1]);
-                    long l2 = Long.parseLong(o2.getName().split("_")[1]);
-                    return (int) (l2 - l1);
-                })
-                .toList();
+        List<File> filesToReConstruct = BitCaskFacade.listFilesGivenPrefixName(Objects.requireNonNull(files),
+                DirectoryConstants.DataExtension);
 
         for (File file : filesToReConstruct) {
             try {
-                File hintFile = new File(file.getParent() + "/" + Constants.HINT_FILE_PREFIX + file.getName());
+                File hintFile = new File(file.getParent() + "/" +
+                        DirectoryConstants.getFileTimeStamp(file.getName()) + DirectoryConstants.HintExtension);
                 if (hintFile.exists())
                     DiskReader.readHintFile(hintFile, keyToEntryMetaData);
                 else
@@ -48,27 +53,53 @@ public class BitCask {
         }
     }
 
-    public String get(String key) throws IOException {
-        if (!this.keyToEntryMetaData.containsKey(key))
-            return "NOT FOUND";
+    @Override
+    public byte[] get(byte[] key) throws IOException, DirectoryNotFoundException {
+        if (dbDirectory == null)
+            throw new DirectoryNotFoundException("Directory not found, please open the database first");
+        int keyValue = Ints.fromByteArray(key);
 
-        EntryMetaData entryMetaData = keyToEntryMetaData.get(key);
-        byte[] bytes = DiskReader.readEntryValueFromDisk(entryMetaData.getFileID(), entryMetaData.getValuePosition(), entryMetaData.getValueSize());
+        if (!this.keyToEntryMetaData.containsKey(keyValue))
+            return null;
 
-        return BitCaskEntry.parseBytesToValue(bytes);
+        EntryMetaData entryMetaData = keyToEntryMetaData.get(keyValue);
+
+        return DiskReader.readEntryValueFromDisk(entryMetaData.getFileID(), entryMetaData.getValuePosition(), entryMetaData.getValueSize());
     }
 
-    public void put(String key, String value) throws IOException {
-        BitCaskEntry bitCaskEntry = new BitCaskEntry(key.getBytes().length,
-                System.currentTimeMillis(), key, value);
+    @Override
+    public void delete(byte[] key) throws DirectoryNotFoundException, IOException {
+        if (dbDirectory == null)
+            throw new DirectoryNotFoundException("Directory not found, please open the database first");
 
-        DiskResponse diskResponse = diskWriter.writeEntryToActiveFile(bitCaskEntry);
-        EntryMetaData entryMetaData = new EntryMetaData(bitCaskEntry.getValueSize(), diskResponse.getValuePosition(),
-                bitCaskEntry.getTimestamp(), diskResponse.getFileName());
+        byte[] value = {-1, 0, -1, 0, -1};
 
-        keyToEntryMetaData.put(key, entryMetaData);
+        bitCaskFacade.writeEntryMetaData(key, value);
+
+        keyToEntryMetaData.remove(Ints.fromByteArray(key));
     }
 
+    @Override
+    public int open(String directory) throws FileNotFoundException {
+        this.dbDirectory = directory;
+        this.keyToEntryMetaData = new HashMap<>();
+        DiskReader.setDbDirectory(this.dbDirectory);
+        reConstruct();
+        this.diskWriter = new DiskWriter(this.dbDirectory);
+        status = 200;
+        return 200;
+    }
+
+    @Override
+    public void put(byte[] key, byte[] value) throws IOException, DirectoryNotFoundException {
+        if (dbDirectory == null)
+            throw new DirectoryNotFoundException("Directory not found, please open the database first");
+        EntryMetaData entryMetaData = bitCaskFacade.writeEntryMetaData(key, value);
+
+        keyToEntryMetaData.put(Ints.fromByteArray(key), entryMetaData);
+    }
+
+    @Override
     public void mergeAndCompaction() throws IOException {
         File directory = new File(dbDirectory);
         File[] files = directory.listFiles();
@@ -79,92 +110,39 @@ public class BitCask {
 
         System.out.println("Begin Compaction");
 
-        Map<String, EntryMetaData> compactedKeyToEntryMetaData = new HashMap<>();
-        Map<String, String> keyToValue = new HashMap<>();
+        Map<Integer, EntryMetaData> compactedKeyToEntryMetaData = new HashMap<>();
+        Map<Integer, byte[]> keyToValue = new HashMap<>();
 
-        List<File> filesToCompact = Arrays.stream(files)
-                .filter(file -> file.getName().startsWith("replica_"))
-                .sorted((o1, o2) -> {
-                    long l1 = Long.parseLong(o1.getName().split("_")[2]);
-                    long l2 = Long.parseLong(o2.getName().split("_")[2]);
-                    return (int) (l2 - l1);
-                })
-                .toList();
+        List<File> filesToCompact = BitCaskFacade.listFilesGivenPrefixName(files, DirectoryConstants.ReplicaExtension);
+        BitCaskFacade.readAllKeys(compactedKeyToEntryMetaData, keyToValue, filesToCompact);
 
-        String activeFileName = filesToCompact.get(0).getName().substring(8);
-        for (int i = 1; i < filesToCompact.size(); i++) {
-            Map<String, String> tempKeyToValue = DiskReader.readEntriesFromDisk(filesToCompact.get(i).getName(), compactedKeyToEntryMetaData);
-            for (Map.Entry<String, String> entry : tempKeyToValue.entrySet()) {
-                if (!keyToValue.containsKey(entry.getKey())) {
-                    keyToValue.put(entry.getKey(), entry.getValue());
-                }
-            }
-        }
+        String activeFileName = DirectoryConstants.getFileTimeStamp(filesToCompact.get(filesToCompact.size() - 1).getName());
+        File firstFile = filesToCompact.get(0);
 
-        File firstFile = filesToCompact.get(filesToCompact.size() - 1);
-        String compactedFileName = firstFile.getParent() + '/' + firstFile.getName().substring(8) + 'm';
+        String compactedFileName = firstFile.getParent() + '/' + DirectoryConstants.getFileTimeStamp(firstFile.getName())
+                + DirectoryConstants.DataExtension + 'm';
         String replicaCompactedFileName = firstFile.getPath() + 'm';
+
         File compactedFile = new File(compactedFileName);
         File replicaCompactedFile = new File(replicaCompactedFileName);
+
         boolean created = compactedFile.createNewFile();
         boolean replicaCreated = replicaCompactedFile.createNewFile();
 
-        if (!created || !replicaCreated) {
+        if (!created || !replicaCreated)
             throw new IOException("Failed to create compacted file");
-        }
 
-        for (Map.Entry<String, String> entry : keyToValue.entrySet()) {
-            BitCaskEntry bitCaskEntry = new BitCaskEntry(entry.getKey().getBytes().length,
-                    compactedKeyToEntryMetaData.get(entry.getKey()).getTimestamp(),
-                    entry.getKey(), entry.getValue());
+        bitCaskFacade.writeCompactedFile(compactedKeyToEntryMetaData, keyToValue, compactedFile);
+        bitCaskFacade.deleteOldFiles(files, activeFileName);
 
-            DiskResponse diskResponse = diskWriter.writeCompacted(bitCaskEntry, compactedFile);
-            EntryMetaData entryMetaData = new EntryMetaData(bitCaskEntry.getValueSize(), diskResponse.getValuePosition(),
-                    bitCaskEntry.getTimestamp(), diskResponse.getFileName());
+        compactedFile = bitCaskFacade.renameFile(compactedFileName, compactedFile);
+        bitCaskFacade.renameFile(replicaCompactedFileName, replicaCompactedFile);
 
-            compactedKeyToEntryMetaData.put(entry.getKey(), entryMetaData);
-        }
+        String hintFileName = firstFile.getParent() + '/' + DirectoryConstants.getFileTimeStamp(firstFile.getName()) + DirectoryConstants.HintExtension + 'm';
+        bitCaskFacade.renameFile(hintFileName, new File(hintFileName));
 
-        deleteOldFiles(files, activeFileName);
-
-        compactedFile = renameFile(compactedFileName, compactedFile);
-        renameFile(replicaCompactedFileName, replicaCompactedFile);
-        String hintFileName = firstFile.getParent() + '/' + Constants.HINT_FILE_PREFIX + firstFile.getName().substring(8) + 'm';
-        renameFile(hintFileName, new File(hintFileName));
-
-        for (Map.Entry<String, EntryMetaData> entry : compactedKeyToEntryMetaData.entrySet()) {
-            entry.getValue().setFileID(compactedFile.getName());
-            if (keyToEntryMetaData.containsKey(entry.getKey()) &&
-                    keyToEntryMetaData.get(entry.getKey()).getTimestamp() == entry.getValue().getTimestamp() &&
-                    !keyToEntryMetaData.get(entry.getKey()).getFileID().equals(entry.getValue().getFileID())) {
-                keyToEntryMetaData.put(entry.getKey(), entry.getValue());
-            }
-        }
+        bitCaskFacade.updateInMemoryKeysAfterCompaction(compactedKeyToEntryMetaData, compactedFile);
 
         System.out.println("Finish Compaction");
-    }
-
-    private File renameFile(String fileNameToRename, File fileToRename) {
-        File renamedFileWithoutSuffix = new File(fileNameToRename.substring(0, fileNameToRename.length() - 1));
-        boolean rename = fileToRename.renameTo(renamedFileWithoutSuffix);
-        if (!rename)
-            System.out.println("Failed to rename file");
-
-        return renamedFileWithoutSuffix;
-    }
-
-    private void deleteOldFiles(File[] files, String activeFileName) {
-        Arrays.stream(files)
-                .filter(
-                        file -> !file.getName().endsWith("m") &&
-                                !file.getName().endsWith(activeFileName) &&
-                                !file.getName().substring(8).endsWith(activeFileName) &&
-                                (
-                                        file.getName().startsWith(Constants.FILE_PREFIX) ||
-                                                file.getName().startsWith(Constants.HINT_FILE_PREFIX) ||
-                                                file.getName().startsWith(Constants.REPLICA_FILE_PREFIX)
-                                )
-                )
-                .forEach(File::delete);
     }
 }

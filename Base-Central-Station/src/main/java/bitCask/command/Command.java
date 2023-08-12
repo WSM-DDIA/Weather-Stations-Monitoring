@@ -4,5 +4,5 @@ import bitCask.storage.BitCask;
 
 public interface Command {
 
-    void execute(BitCask keyValueStore);
+    String execute(BitCask keyValueStore);
 }

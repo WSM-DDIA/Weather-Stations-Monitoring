@@ -9,8 +9,10 @@ import java.util.List;
 public class CentralStation {
     private static final String bootstrapServers = "localhost:9092";
     private static final int bitCaskPort = 4240;
+    private static final String bitCaskIP = "localhost";
     private static final String topic = "weather-status-messages";
-    private static final String data_dir = "Parquet_Files_Data";
+    private static final String dataDirectory = "Parquet_Files_Data";
+    private static final String bitCaskDirectory = "/home/bazina/IdeaProjects/Weather-Stations-Monitoring/Base-Central-Station/src/main/resources/";
 
     public static void invoke() throws Exception {
         // Initialize KafkaAPI
@@ -19,10 +21,11 @@ public class CentralStation {
         // Initialize RocksDB
         RocksDB.loadLibrary();
         Options options = new Options().setCreateIfMissing(true);
-        RocksDB invalidMessageChannel = RocksDB.open(options, data_dir);
+        RocksDB invalidMessageChannel = RocksDB.open(options, dataDirectory);
 
         BitCaskClient bitCaskClient = new BitCaskClient();
-        bitCaskClient.startConnection("localhost", bitCaskPort);
+        bitCaskClient.startConnection(bitCaskIP, bitCaskPort);
+        bitCaskClient.open(bitCaskDirectory);
 
         // setup parquet files
         WriteParquetFile writer = new WriteParquetFile();
@@ -34,7 +37,8 @@ public class CentralStation {
                     WeatherStatusMessage weatherStatus = new WeatherStatusMessage(Parsing.parse(record));
 
                     // Update BitCask store
-                    bitCaskClient.sendMessage(weatherStatus.getStationId(), weatherStatus.toString());
+                    String status = bitCaskClient.put(Integer.parseInt(weatherStatus.getStationId()), weatherStatus.toString());
+                    System.out.println(status);
 
                     // write data to parquet files
                     writer.write(weatherStatus);
