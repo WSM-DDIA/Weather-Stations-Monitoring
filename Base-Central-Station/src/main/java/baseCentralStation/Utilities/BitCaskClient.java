@@ -41,6 +41,29 @@ public class BitCaskClient {
         return WeatherStatusMessage.parseProtoBufBytesToValue(response);
     }
 
+    public String delete(int key) throws IOException {
+        byte[] bytes = RequestParameterBuilder.bitCaskFirstParametersAsBytes(key, (byte) 3);
+
+        out.write(bytes);
+        out.flush();
+
+        int response = in.readInt();
+
+        return response == 200 ? "OK" : "ERROR";
+    }
+
+    public void open(String directory) throws IOException {
+        byte[] bytes = RequestParameterBuilder.bitCaskOpenParametersAsBytes(directory);
+
+        out.write(bytes);
+        out.flush();
+
+        int response = in.readInt();
+
+        if (response != 200)
+            throw new RuntimeException("Error in opening the database");
+    }
+
     public void stopConnection() throws IOException {
         in.close();
         out.close();
