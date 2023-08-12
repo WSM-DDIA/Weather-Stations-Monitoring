@@ -9,13 +9,26 @@ public class Parsing {
     private static final Pattern pattern = Pattern.compile("\\{station_id=(\\d+), s_no=(\\d+), battery_status='(\\w+)', " +
             "status_timestamp=(\\d+), weather=\\{humidity=(\\d+(?:\\.\\d+)?), temperature=(\\d+(?:\\.\\d+)?), wind_speed=(\\d+(?:\\.\\d+)?)}}");
 
-    public Parsing() {}
+    public Parsing() {
+    }
 
-    public static boolean validate(String input){
+    /**
+     * Validates the input string.
+     *
+     * @param input String to be validated
+     * @return true if the input string is valid, false otherwise
+     */
+    public static boolean validate(String input) {
         return pattern.matcher(input).matches();
     }
 
-    public static HashMap<String, String> parse(String input){
+    /**
+     * Parses the input string and returns a HashMap containing the weather status.
+     *
+     * @param input String to be parsed
+     * @return HashMap containing the weather status
+     */
+    public static HashMap<String, String> parse(String input) {
         Matcher matcher = pattern.matcher(input);
         HashMap<String, String> weatherStatus = new HashMap<>();
         if (matcher.find()) {

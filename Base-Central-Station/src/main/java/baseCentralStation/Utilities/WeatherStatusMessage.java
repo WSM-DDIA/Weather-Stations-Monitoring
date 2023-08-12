@@ -35,6 +35,13 @@ public class WeatherStatusMessage implements Serializable {
         this.windSpeed = msg.get("wind_speed");
     }
 
+    /**
+     * Convert the ProtoBuffer message to a JSON string.
+     *
+     * @param valueBytes The message to convert
+     * @return The JSON string
+     * @throws InvalidProtocolBufferException If the message is not a valid protobuf message
+     */
     public static String parseProtoBufBytesToValue(byte[] valueBytes) throws InvalidProtocolBufferException {
         WeatherStatus builder = WeatherStatus.newBuilder().mergeFrom(valueBytes).build();
 
@@ -50,6 +57,13 @@ public class WeatherStatusMessage implements Serializable {
         return weatherStatusMessage.toJsonString();
     }
 
+    /**
+     * Convert the JSON string to a ProtoBuffer message.
+     *
+     * @param value The JSON string to convert
+     * @return The ProtoBuffer message
+     * @throws InvalidProtocolBufferException If the message is not a valid protobuf message
+     */
     protected static byte[] parseValueToBytesArray(String value) throws InvalidProtocolBufferException {
         JSONObject weatherStatusJson = new JSONObject(value);
         WeatherStatus.Builder builder = WeatherStatus.newBuilder();
@@ -59,6 +73,12 @@ public class WeatherStatusMessage implements Serializable {
         return weatherStatusMessage.toByteArray();
     }
 
+    /**
+     * Groups the weather status data into a Parquet Group.
+     *
+     * @param schema The schema to use
+     * @return The Parquet Group
+     */
     public Group toGroup(MessageType schema) {
         GroupFactory groupFactory = new SimpleGroupFactory(schema);
         Group weatherStatusGroup = groupFactory.newGroup();
@@ -72,6 +92,7 @@ public class WeatherStatusMessage implements Serializable {
         return weatherStatusGroup;
     }
 
+    @Override
     public String toString() {
         return "{station_id:" + this.stationId +
                 ", s_no:" + this.sNo +

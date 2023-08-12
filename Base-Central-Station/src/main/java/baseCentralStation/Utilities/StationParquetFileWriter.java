@@ -19,13 +19,10 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WriteParquetFile {
+public class StationParquetFileWriter {
 
     private static final String parquetDirectory = "Parquet_Files_Directory";
     private static final long time = System.currentTimeMillis();
-    private final Path rootDirectory;
-    private final FileSystem parquetFile;
-    private final Configuration configuration;
     private static final MessageType parquetSchema = Types.buildMessage()
             .required(PrimitiveType.PrimitiveTypeName.INT64).named("station_id")
             .required(PrimitiveType.PrimitiveTypeName.INT64).named("s_no")
@@ -36,11 +33,18 @@ public class WriteParquetFile {
             .required(PrimitiveType.PrimitiveTypeName.INT32).named("wind_speed")
             .named("WeatherStatus");
     private static final HashMap<String, Integer> parquetSize = new HashMap<>();
-    private static final HashMap<String,Integer> parquetVersion = new HashMap<>();
+    private static final HashMap<String, Integer> parquetVersion = new HashMap<>();
     private static final Map<Path, ParquetWriter<Group>> writerStore = new HashMap<>();
+    private final Path rootDirectory;
+    private final FileSystem parquetFile;
+    private final Configuration configuration;
 
-    public WriteParquetFile() throws IOException {
-        // Initialize HDFS
+    /**
+     * Constructor to initialize HDFS.
+     *
+     * @throws IOException if HDFS is not initialized
+     */
+    public StationParquetFileWriter() throws IOException {
         this.configuration = new Configuration();
         this.parquetFile = FileSystem.get(this.configuration);
         this.rootDirectory = new Path(parquetDirectory);
@@ -48,12 +52,34 @@ public class WriteParquetFile {
             this.parquetFile.mkdirs(rootDirectory);
         }
 
-        for (int i = 1 ; i <= 10 ; i++){
+        for (int i = 1; i <= 10; i++) {
             parquetVersion.put(String.valueOf(i), 1);
             parquetSize.put(String.valueOf(i), 0);
         }
     }
 
+    /**
+     * Creates a parquet writer.
+     *
+     * @param parquetPath path to the parquet file
+     * @param conf        configuration
+     * @return parquet writer
+     * @throws IOException if parquet writer cannot be created
+     */
+    private static ParquetWriter<Group> createParquetWriter(Path parquetPath, Configuration conf) throws IOException {
+        return CustomParquetWriter.builder(HadoopOutputFile.fromPath(parquetPath, conf))
+                .withType(parquetSchema)
+                .withCompressionCodec(CompressionCodecName.SNAPPY)
+                .withWriteMode(ParquetFileWriter.Mode.CREATE)
+                .build();
+    }
+
+    /**
+     * Writes the WeatherStatusMessage object to parquet file.
+     *
+     * @param weatherStatus WeatherStatusMessage object to be written to parquet
+     * @throws IOException if parquet file is not created
+     */
     public void write(WeatherStatusMessage weatherStatus) throws IOException {
         LocalDate date = LocalDate.ofEpochDay(Long.parseLong(weatherStatus.getStatusTimestamp()) / 86400);
         Path parquetPath = new Path(rootDirectory,
@@ -82,20 +108,16 @@ public class WriteParquetFile {
         }
     }
 
+    /**
+     * Renames the parquet file. So it can be integrated with Kibana and Elasticsearch.
+     *
+     * @param fileNameToRename name of the file to rename
+     * @param fileToRename     file to rename
+     */
     private void renameFile(String fileNameToRename, File fileToRename) {
         File renamedFileWithoutSuffix = new File(fileNameToRename + ".parquet");
         boolean rename = fileToRename.renameTo(renamedFileWithoutSuffix);
         if (!rename)
             System.out.println("Failed to rename file");
-    }
-
-
-
-    private static ParquetWriter<Group> createParquetWriter(Path parquetPath, Configuration conf) throws IOException {
-        return  CustomParquetWriter.builder(HadoopOutputFile.fromPath(parquetPath, conf))
-                .withType(parquetSchema)
-                .withCompressionCodec(CompressionCodecName.SNAPPY)
-                .withWriteMode(ParquetFileWriter.Mode.CREATE)
-                .build();
     }
 }

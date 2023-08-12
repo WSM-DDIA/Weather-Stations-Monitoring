@@ -16,6 +16,11 @@ public class WeatherStatusMessage implements Serializable {
     private float temperature;
     private float windSpeed;
 
+    /**
+     * Convert the ProtoBuffer message to a JSON string.
+     *
+     * @return The JSON string
+     */
     public String toJsonString() {
         return "{station_id:" + this.stationId +
                 ", s_no:" + this.sNo +
