@@ -1,6 +1,5 @@
 package bitCask;
 
-import bitCask.command.CommandFactory;
 import bitCask.storage.BitCask;
 
 import java.io.FileNotFoundException;
@@ -13,18 +12,19 @@ public class Main {
     private static final int port = 4240;
     private static BitCask bitCask;
 
-    public static void main(String[] args) throws FileNotFoundException {
-        bitCask = new BitCask(args[0]);
+    public static void main(String[] args) {
+        bitCask = new BitCask();
 
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                 System.out.println("initiating merge and compaction");
-                bitCask.mergeAndCompaction();
+                if (bitCask.status == 200)
+                    bitCask.mergeAndCompaction();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }, 5, 30, TimeUnit.SECONDS);
+        }, 5, 15, TimeUnit.SECONDS);
 
         MultiServer multiServer = new MultiServer(bitCask);
         try {
