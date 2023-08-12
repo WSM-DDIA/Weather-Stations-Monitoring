@@ -8,7 +8,7 @@ public class DirectoryConstants {
     public static final long MEMORY_LIMIT = 32768;
 
     /**
-     * Returns the timestamp of the file
+     * Returns the timestamp of the file.
      *
      * @param fileName name of the file
      * @return timestamp of the file

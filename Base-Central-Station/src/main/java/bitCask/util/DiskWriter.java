@@ -45,7 +45,7 @@ public class DiskWriter {
     }
 
     /**
-     * Gets the hint file path for the given file name
+     * Gets the hint file path for the given file name.
      * @param fileName name of the file
      * @return hint file path
      */
@@ -60,6 +60,7 @@ public class DiskWriter {
 
     /**
      * Writes the entry to the disk in the given file which is the compacted version.
+     *
      * @param bitCaskEntry entry to be written
      * @param file file to write the entry to
      * @return DiskResponse object containing the file name and the value position
@@ -77,7 +78,8 @@ public class DiskWriter {
     }
 
     /**
-     * Gets the replica file path for the given file name
+     * Gets the replica file path for the given file name.
+     *
      * @param fileName name of the file
      * @return replica file path
      */
@@ -92,6 +94,7 @@ public class DiskWriter {
 
     /**
      * Writes the entry to the disk in the active file.
+     *
      * @param bitCaskEntry entry to be written
      * @return DiskResponse object containing the file name and the value position
      * @throws IOException if the file is not found
@@ -103,6 +106,7 @@ public class DiskWriter {
 
     /**
      * Writes the entry to the disk in the specified file when the writer is constructed.
+     *
      * @param bitCaskEntry entry to be written
      * @return DiskResponse object containing the file name and the value position
      * @throws IOException if the file is not found
@@ -115,6 +119,7 @@ public class DiskWriter {
 
     /**
      * Writes the entry to the disk in the specified file.
+     *
      * @param bitCaskEntry entry to be written
      * @return DiskResponse object containing the file name and the value position
      * @throws IOException if the file is not found
@@ -145,6 +150,7 @@ public class DiskWriter {
 
     /**
      * Checks if the file has exceeded the memory limit and creates a new file if it has.
+     *
      * @throws IOException if the file is not found
      */
     private void checkIfFileExceededSize() throws IOException {
@@ -154,6 +160,7 @@ public class DiskWriter {
 
     /**
      * Creates a new file with the current timestamp.
+     *
      * @throws FileNotFoundException if the file is not found
      */
     private void createNewFile() throws FileNotFoundException {

@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class HandlerFactory {
     /**
-     * Parses given input byte array to a concrete {@link MessageHandler} implementation
+     * Parses given input byte array to a concrete {@link MessageHandler} implementation.
      *
      * @param message byte array representation of input
      * @return concrete implementation of {@link MessageHandler} interface
@@ -29,7 +29,7 @@ public class HandlerFactory {
     }
 
     /**
-     * Parses the SET command
+     * Parses the SET command.
      *
      * @param parameters byte array representation of input
      * @return concrete implementation of {@link MessageHandler} interface as {@link SetHandler}
@@ -50,7 +50,7 @@ public class HandlerFactory {
     }
 
     /**
-     * Parses the GET command
+     * Parses the GET command.
      *
      * @param parameters byte array representation of input
      * @return concrete implementation of {@link MessageHandler} interface as {@link GetHandler}
@@ -63,7 +63,7 @@ public class HandlerFactory {
     }
 
     /**
-     * Parses the OPEN command
+     * Parses the OPEN command.
      *
      * @param parameters byte array representation of input
      * @return concrete implementation of {@link MessageHandler} interface as {@link OpenHandler}
@@ -74,7 +74,7 @@ public class HandlerFactory {
     }
 
     /**
-     * Parses the DELETE command
+     * Parses the DELETE command.
      *
      * @param parameters byte array representation of input
      * @return concrete implementation of {@link MessageHandler} interface as {@link DeleteHandler}

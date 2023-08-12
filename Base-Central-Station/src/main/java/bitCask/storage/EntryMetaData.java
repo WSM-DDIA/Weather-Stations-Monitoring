@@ -22,7 +22,7 @@ public class EntryMetaData {
     }
 
     /**
-     * Builds a {@link EntryMetaData} from a byte array
+     * Builds a {@link EntryMetaData} from a byte array.
      *
      * @param bytes byte array representation of {@link EntryMetaData}
      * @return {@link EntryMetaData} instance
@@ -36,7 +36,7 @@ public class EntryMetaData {
     }
 
     /**
-     * Gets timestamp from the byte array
+     * Gets timestamp from the byte array.
      *
      * @param bytes byte array representation of {@link EntryMetaData}
      * @return timestamp
@@ -47,7 +47,7 @@ public class EntryMetaData {
     }
 
     /**
-     * Gets value size from the byte array
+     * Gets value size from the byte array.
      *
      * @param bytes byte array representation of {@link EntryMetaData}
      * @return value size
@@ -58,7 +58,7 @@ public class EntryMetaData {
     }
 
     /**
-     * Gets value position from the byte array
+     * Gets value position from the byte array.
      *
      * @param bytes byte array representation of {@link EntryMetaData}
      * @return value position
@@ -69,7 +69,7 @@ public class EntryMetaData {
     }
 
     /**
-     * Converts the {@link EntryMetaData} to a byte array
+     * Converts the {@link EntryMetaData} to a byte array.
      *
      * @param key          key
      * @param valuePosition value position
@@ -88,7 +88,8 @@ public class EntryMetaData {
     }
 
     /**
-     * Sets file id
+     * Sets file id.
+     *
      * @param fileID file id string value
      */
     public void setFileID(String fileID) {

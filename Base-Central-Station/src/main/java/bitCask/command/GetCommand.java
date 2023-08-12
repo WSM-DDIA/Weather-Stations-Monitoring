@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public record GetCommand(String key) implements Command {
     /**
-     * do get command which gets the value of the key
+     * Does get command which gets the value of the key.
      *
      * @param bitCask the key value store
      * @return byte array of the value as a string

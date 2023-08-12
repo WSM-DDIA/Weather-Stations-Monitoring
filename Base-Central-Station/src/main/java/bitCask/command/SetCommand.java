@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public record SetCommand(String key, String value) implements Command {
     /**
-     * do set command which sets the value of the key
+     * Does set command which sets the value of the key.
      *
      * @param bitCask the key value store
      * @return string represents the status of the command

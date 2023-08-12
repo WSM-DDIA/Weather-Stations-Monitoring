@@ -19,7 +19,7 @@ public class BitCaskFacade {
     }
 
     /**
-     * Lists (sorted) all the files with the given suffix name in the database directory
+     * Lists (sorted) all the files with the given suffix name in the database directory.
      *
      * @param files files in the database directory
      * @param suffixName suffix name of the file to search for
@@ -58,7 +58,7 @@ public class BitCaskFacade {
     }
 
     /**
-     * Writes the given key and value to the active file and hint file and returns the entry meta-data
+     * Writes the given key and value to the active file and hint file and returns the entry meta-data.
      *
      * @param key key to be written
      * @param value value to be written
@@ -74,7 +74,7 @@ public class BitCaskFacade {
     }
 
     /**
-     * Updates the in-memory keys after compaction
+     * Updates the in-memory keys after compaction.
      *
      * @param compactedKeyToEntryMetaData map of key to entry meta-data
      * @param compactedFile file to which the keys are compacted
@@ -91,7 +91,7 @@ public class BitCaskFacade {
     }
 
     /**
-     * Writes the given key and value to the compacted file (original, replica and hint) and returns the entry meta-data
+     * Writes the given key and value to the compacted file (original, replica and hint) and returns the entry meta-data.
      *
      * @param compactedKeyToEntryMetaData map of key to entry meta-data
      * @param keyToValue map of key to value
@@ -118,7 +118,7 @@ public class BitCaskFacade {
     }
 
     /**
-     * Renames the file to be compacted
+     * Renames the file to be compacted.
      *
      * @param fileNameToRename name of the file to be renamed
      * @param fileToRename file to be renamed
@@ -134,7 +134,7 @@ public class BitCaskFacade {
     }
 
     /**
-     * Deletes the old files after compaction
+     * Deletes the old files after compaction.
      *
      * @param files files in the database directory
      * @param activeFileName name of the active file

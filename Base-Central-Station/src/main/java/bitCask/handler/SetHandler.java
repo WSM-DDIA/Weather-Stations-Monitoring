@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public record SetHandler(byte[] key, byte[] value) implements MessageHandler {
     /**
-     * Executes the set command which sets the value of the key
+     * Executes the set command which sets the value of the key.
      *
      * @param bitCask {@link BitCask} instance
      * @return byte array representation of status

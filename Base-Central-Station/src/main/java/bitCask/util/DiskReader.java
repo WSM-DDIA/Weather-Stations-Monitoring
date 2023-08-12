@@ -17,7 +17,7 @@ public class DiskReader {
     }
 
     /**
-     * Reads the value of the entry from the disk
+     * Reads the value of the entry from the disk.
      *
      * @param fileID        name of the file
      * @param valuePosition position of the value in the file
@@ -38,8 +38,8 @@ public class DiskReader {
     /**
      * Reads all the entries from the disk from the given file and constructs a map of key to value.
      * Also, it updates the map of key to entry meta-data.
-     * if the entry is faulty, it stops reading the file.
-     * if the entry is a tombstone, it removes the entry from the map of key to value.
+     * If the entry is faulty, it stops reading the file.
+     * If the entry is a tombstone, it removes the entry from the map of key to value.
      *
      * @param fileID             name of the file
      * @param keyToEntryMetaData map of key to entry meta-data
@@ -83,8 +83,8 @@ public class DiskReader {
 
     /**
      * Reads all the entries from the disk from the given hint file and updates the map of key to entry meta-data.
-     * if the entry is faulty, it stops reading the file.
-     * if the entry is a tombstone, it removes the entry from the map of key to value.
+     * If the entry is faulty, it stops reading the file.
+     * If the entry is a tombstone, it removes the entry from the map of key to value.
      *
      * @param hintFile           hint file to read from
      * @param keyToEntryMetaData map of key to entry meta-data
@@ -126,7 +126,7 @@ public class DiskReader {
     }
 
     /**
-     * Checks if the entry is faulty or not
+     * Checks if the entry is faulty or not.
      *
      * @param bytes      bytes of the entry
      * @param byteCursor current position of the cursor
@@ -138,7 +138,7 @@ public class DiskReader {
     }
 
     /**
-     * Checks if the entry is a tombstone or not
+     * Checks if the entry is a tombstone or not.
      *
      * @param valueBytes bytes of the value
      * @param valueSize  size of the value

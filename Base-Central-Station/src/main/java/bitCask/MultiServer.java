@@ -18,7 +18,7 @@ public class MultiServer {
     }
 
     /**
-     * Starts the server
+     * Starts the server.
      *
      * @param port the port number
      * @throws IOException if the port is not found
@@ -30,7 +30,7 @@ public class MultiServer {
     }
 
     /**
-     * Stops the server
+     * Stops the server.
      *
      * @throws IOException if the port is not found
      */

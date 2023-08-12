@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public record OpenHandler(String directory) implements MessageHandler {
     /**
-     * Executes the open command which opens the directory
+     * Executes the open command which opens the directory.
      *
      * @param bitCask {@link BitCask} instance
      * @return byte array representation of status

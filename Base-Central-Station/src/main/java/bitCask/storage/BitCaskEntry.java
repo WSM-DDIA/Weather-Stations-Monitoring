@@ -23,7 +23,7 @@ public class BitCaskEntry {
     }
 
     /**
-     * Builds a {@link BitCaskEntry} from a byte array
+     * Builds a {@link BitCaskEntry} from a byte array.
      *
      * @param bytes byte array representation of {@link BitCaskEntry}
      * @return {@link BitCaskEntry} instance
@@ -38,7 +38,7 @@ public class BitCaskEntry {
     }
 
     /**
-     * Gets timestamp from the byte array
+     * Gets timestamp from the byte array.
      *
      * @param bytes byte array representation of {@link BitCaskEntry}
      * @return timestamp
@@ -49,7 +49,7 @@ public class BitCaskEntry {
     }
 
     /**
-     * Gets value size from the byte array
+     * Gets value size from the byte array.
      *
      * @param bytes   byte array representation of {@link BitCaskEntry}
      * @param keySize size of the key
@@ -61,7 +61,7 @@ public class BitCaskEntry {
     }
 
     /**
-     * Gets key size from the byte array
+     * Gets key size from the byte array.
      *
      * @param bytes byte array representation of {@link BitCaskEntry}
      * @return key size
@@ -72,7 +72,7 @@ public class BitCaskEntry {
     }
 
     /**
-     * Extracts the value bytes from the byte array
+     * Extracts the value bytes from the byte array.
      *
      * @param bytes     byte array representation of {@link BitCaskEntry}
      * @param keySize   size of the key
@@ -84,7 +84,7 @@ public class BitCaskEntry {
     }
 
     /**
-     * Extracts the key bytes from the byte array
+     * Extracts the key bytes from the byte array.
      *
      * @param bytes   byte array representation of {@link BitCaskEntry}
      * @param keySize size of the key
@@ -95,7 +95,7 @@ public class BitCaskEntry {
     }
 
     /**
-     * Converts the {@link BitCaskEntry} to a byte array
+     * Converts the {@link BitCaskEntry} to a byte array.
      *
      * @return byte array representation of {@link BitCaskEntry}
      * @throws IOException if an I/O error occurs

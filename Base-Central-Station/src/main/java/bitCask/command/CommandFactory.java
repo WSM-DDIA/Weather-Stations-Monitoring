@@ -8,7 +8,7 @@ public class CommandFactory {
     }
 
     /**
-     * Parses given input String to a concrete {@link Command} implementation
+     * Parses given input String to a concrete {@link Command} implementation.
      *
      * @param input String representation of input
      * @return concrete implementation of {@link Command} interface
@@ -35,7 +35,7 @@ public class CommandFactory {
     }
 
     /**
-     * Parses the SET command
+     * Parses the SET command.
      *
      * @param input  String representation of input
      * @param cursor current cursor position
@@ -65,7 +65,7 @@ public class CommandFactory {
     }
 
     /**
-     * Parses the GET command
+     * Parses the GET command.
      *
      * @param input  String representation of input
      * @param cursor current cursor position
@@ -78,10 +78,8 @@ public class CommandFactory {
         return new GetCommand(key);
     }
 
-    // document the below method
-
     /**
-     * Parses the key from the input string
+     * Parses the key from the input string.
      *
      * @param input command string
      * @param cursor current cursor position
@@ -102,7 +100,7 @@ public class CommandFactory {
     }
 
     /**
-     * Cleans the white space from the input string
+     * Cleans the white space from the input string.
      *
      * @param input command string
      * @param cursor current cursor position
