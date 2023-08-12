@@ -13,8 +13,10 @@ public class HandlerFactory {
         byte[] parameters = Arrays.copyOfRange(message, cursor + 1, message.length);
 
         return switch (operationTypeByte) {
-            case Constants.GET -> parseGetMessage(parameters);
-            case Constants.SET -> parseSetMessage(parameters);
+            case Operations.OPEN -> parseOpenMessage(parameters);
+            case Operations.GET -> parseGetMessage(parameters);
+            case Operations.SET -> parseSetMessage(parameters);
+            case Operations.DELETE -> parseDeleteMessage(parameters);
             default -> throw new InvalidCommandException("Operation not supported");
         };
     }
@@ -39,5 +41,17 @@ public class HandlerFactory {
         byte[] keyBytes = Arrays.copyOfRange(parameters, Integer.BYTES, Integer.BYTES + keySize);
 
         return new GetHandler(keyBytes);
+    }
+
+    private MessageHandler parseOpenMessage(byte[] parameters) {
+        String dbDirectory = new String(parameters);
+        return new OpenHandler(dbDirectory);
+    }
+
+    private MessageHandler parseDeleteMessage(byte[] parameters) {
+        int keySize = Ints.fromByteArray(Arrays.copyOfRange(parameters, 0, Integer.BYTES));
+        byte[] keyBytes = Arrays.copyOfRange(parameters, Integer.BYTES, Integer.BYTES + keySize);
+
+        return new DeleteHandler(keyBytes);
     }
 }
