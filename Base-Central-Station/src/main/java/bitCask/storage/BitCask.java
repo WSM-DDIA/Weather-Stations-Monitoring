@@ -5,6 +5,7 @@ import bitCask.util.DirectoryConstants;
 import bitCask.util.DiskReader;
 import bitCask.util.DiskWriter;
 import com.google.common.primitives.Ints;
+import lombok.Getter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,22 +18,19 @@ import java.util.Objects;
 public class BitCask implements IBitCask {
     private final BitCaskFacade bitCaskFacade = new BitCaskFacade(this);
     public int status = 400;
+    @Getter
     private DiskWriter diskWriter;
     private String dbDirectory;
+    @Getter
     private Map<Integer, EntryMetaData> keyToEntryMetaData;
 
     public BitCask() {
         this.keyToEntryMetaData = new HashMap<>();
     }
 
-    public DiskWriter getDiskWriter() {
-        return diskWriter;
-    }
-
-    public Map<Integer, EntryMetaData> getKeyToEntryMetaData() {
-        return keyToEntryMetaData;
-    }
-
+    /**
+     * Opens the database and recover the data from the disk
+     */
     private void reConstruct() {
         File directory = new File(dbDirectory);
         File[] files = directory.listFiles();
@@ -48,7 +46,7 @@ public class BitCask implements IBitCask {
                 else
                     DiskReader.readEntriesFromDisk(file.getName(), keyToEntryMetaData);
             } catch (IOException e) {
-                e.printStackTrace();
+                e.getCause();
             }
         }
     }

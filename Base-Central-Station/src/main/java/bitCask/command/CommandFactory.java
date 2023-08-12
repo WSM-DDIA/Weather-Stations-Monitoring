@@ -34,6 +34,14 @@ public class CommandFactory {
         };
     }
 
+    /**
+     * Parses the SET command
+     *
+     * @param input  String representation of input
+     * @param cursor current cursor position
+     * @return concrete implementation of {@link Command} interface as {@link SetCommand}
+     * @throws InvalidCommandException If the given command is an invalid command
+     */
     private SetCommand parseSetCommand(String input, int cursor) throws InvalidCommandException {
         StringBuilder sb = new StringBuilder();
         while (cursor < input.length() && input.charAt(cursor) != ' ') {
@@ -56,12 +64,30 @@ public class CommandFactory {
         return new SetCommand(key, value);
     }
 
+    /**
+     * Parses the GET command
+     *
+     * @param input  String representation of input
+     * @param cursor current cursor position
+     * @return concrete implementation of {@link Command} interface as {@link GetCommand}
+     * @throws InvalidCommandException If the given command is an invalid command
+     */
     private GetCommand parseGetCommand(String input, int cursor) throws InvalidCommandException {
         String key = parseKey(input, cursor);
         System.out.println(key);
         return new GetCommand(key);
     }
 
+    // document the below method
+
+    /**
+     * Parses the key from the input string
+     *
+     * @param input command string
+     * @param cursor current cursor position
+     * @return key
+     * @throws InvalidCommandException If the given command should not contain parameters in addition to key
+     */
     private String parseKey(String input, int cursor) throws InvalidCommandException {
         StringBuilder sb = new StringBuilder();
         while (cursor < input.length() && input.charAt(cursor) != ' ') {
@@ -75,6 +101,13 @@ public class CommandFactory {
         return key;
     }
 
+    /**
+     * Cleans the white space from the input string
+     *
+     * @param input command string
+     * @param cursor current cursor position
+     * @return cursor position after cleaning the white space
+     */
     private int cleanWhiteSpace(String input, int cursor) {
         while (cursor < input.length() && input.charAt(cursor) == ' ') {
             cursor++;

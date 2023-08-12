@@ -17,12 +17,23 @@ public class MultiServer {
         MultiServer.bitCask = bitCask;
     }
 
+    /**
+     * Starts the server
+     *
+     * @param port the port number
+     * @throws IOException if the port is not found
+     */
     public void start(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         while (true)
             new EchoClientHandler(serverSocket.accept()).start();
     }
 
+    /**
+     * Stops the server
+     *
+     * @throws IOException if the port is not found
+     */
     public void stop() throws IOException {
         serverSocket.close();
     }
