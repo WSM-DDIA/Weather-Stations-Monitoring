@@ -1,7 +1,6 @@
 package bitCask.storage;
 
 import bitCask.exception.DirectoryNotFoundException;
-import bitCask.exception.KeyNotFoundException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,7 +41,6 @@ public interface IBitCask {
      * @param key key to be deleted
      * @throws IOException                if there is an error in writing to the disk
      * @throws DirectoryNotFoundException if the directory is not found
-     * @throws KeyNotFoundException       if the key is not found
      */
     void delete(byte[] key) throws IOException, DirectoryNotFoundException;
 

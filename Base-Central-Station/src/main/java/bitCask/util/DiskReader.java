@@ -23,7 +23,7 @@ public class DiskReader {
      * @param valuePosition position of the value in the file
      * @param valueSize     size of the value
      * @return value of the entry
-     * @throws IOException
+     * @throws IOException if the file is not found
      */
     public static byte[] readEntryValueFromDisk(String fileID, long valuePosition, int valueSize) throws IOException {
         byte[] value = new byte[valueSize];
