@@ -1,5 +1,6 @@
 package bitCask.command;
 
+import bitCask.exception.DirectoryNotFoundException;
 import bitCask.storage.BitCask;
 import com.google.common.primitives.Ints;
 
@@ -13,7 +14,7 @@ public record SetCommand(String key, String value) implements Command {
             bitCask.put(Ints.toByteArray(Integer.parseInt(key)),
                     value.getBytes(StandardCharsets.UTF_8));
             return "OK";
-        } catch (IOException e) {
+        } catch (IOException | DirectoryNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

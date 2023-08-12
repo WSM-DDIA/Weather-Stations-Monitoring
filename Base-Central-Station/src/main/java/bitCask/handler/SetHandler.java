@@ -1,5 +1,6 @@
 package bitCask.handler;
 
+import bitCask.exception.DirectoryNotFoundException;
 import bitCask.storage.BitCask;
 import com.google.common.primitives.Ints;
 
@@ -11,7 +12,7 @@ public record SetHandler(byte[] key, byte[] value) implements MessageHandler {
         try {
             bitCask.put(key, value);
             return Ints.toByteArray(200);
-        } catch (IOException e) {
+        } catch (IOException | DirectoryNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
