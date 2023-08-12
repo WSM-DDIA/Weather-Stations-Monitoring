@@ -1,15 +1,19 @@
 package bitCask.storage;
 
-import java.io.File;
+import bitCask.exception.DirectoryNotFoundException;
+import bitCask.exception.KeyNotFoundException;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public interface IBitCask {
-    int open(File directory) throws IOException;
-    void put(byte[] key, byte[] value) throws IOException;
+    int open(String directory) throws FileNotFoundException;
 
-    byte[] get(byte[] key) throws IOException;
+    void put(byte[] key, byte[] value) throws IOException, DirectoryNotFoundException;
 
-    void delete(byte[] key);
+    byte[] get(byte[] key) throws IOException, DirectoryNotFoundException;
+
+    void delete(byte[] key) throws IOException, DirectoryNotFoundException, KeyNotFoundException;
 
     void mergeAndCompaction() throws IOException;
 }
