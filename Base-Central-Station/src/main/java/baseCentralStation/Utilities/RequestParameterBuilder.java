@@ -31,4 +31,12 @@ public class RequestParameterBuilder {
 
         return byteArrayOutputStream.toByteArray();
     }
+
+    protected static byte[] bitCaskOpenParametersAsBytes(String directory) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byteArrayOutputStream.write((byte) 0);
+        byteArrayOutputStream.write(directory.getBytes());
+
+        return byteArrayOutputStream.toByteArray();
+    }
 }
