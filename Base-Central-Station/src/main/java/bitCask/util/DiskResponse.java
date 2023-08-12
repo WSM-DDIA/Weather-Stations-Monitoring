@@ -7,7 +7,7 @@ public class DiskResponse {
 
     public DiskResponse(String fileName, long valuePosition) {
         this.fileName = fileName;
-        this.replicaFileName = "replica_" + fileName;
+        this.replicaFileName = DirectoryConstants.getFileTimeStamp(fileName) + DirectoryConstants.ReplicaExtension;
         this.valuePosition = valuePosition;
     }
 
