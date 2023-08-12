@@ -1,5 +1,8 @@
 package bitCask.util;
 
+import lombok.Getter;
+
+@Getter
 public class DiskResponse {
     String fileName;
     String replicaFileName;
@@ -9,17 +12,5 @@ public class DiskResponse {
         this.fileName = fileName;
         this.replicaFileName = DirectoryConstants.getFileTimeStamp(fileName) + DirectoryConstants.ReplicaExtension;
         this.valuePosition = valuePosition;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getReplicaFileName() {
-        return replicaFileName;
-    }
-
-    public long getValuePosition() {
-        return valuePosition;
     }
 }
