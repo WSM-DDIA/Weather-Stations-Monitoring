@@ -1,6 +1,6 @@
 package bitCask.storage;
 
-import bitCask.util.Constants;
+import bitCask.util.DirectoryConstants;
 import bitCask.util.DiskReader;
 import bitCask.util.DiskResponse;
 import com.google.common.primitives.Ints;
@@ -22,8 +22,8 @@ public class BitCaskFacade {
         return Arrays.stream(files)
                 .filter(file -> file.getName().endsWith(suffixName))
                 .sorted((o1, o2) -> {
-                    long l1 = Long.parseLong(Constants.getFileTimeStamp(o1.getName()));
-                    long l2 = Long.parseLong(Constants.getFileTimeStamp(o2.getName()));
+                    long l1 = Long.parseLong(DirectoryConstants.getFileTimeStamp(o1.getName()));
+                    long l2 = Long.parseLong(DirectoryConstants.getFileTimeStamp(o2.getName()));
                     return (int) (l1 - l2);
                 })
                 .toList();
@@ -94,9 +94,9 @@ public class BitCaskFacade {
                         file -> !file.getName().endsWith("m") &&
                                 !file.getName().startsWith(activeFileName) &&
                                 (
-                                        file.getName().endsWith(Constants.DataExtension) ||
-                                                file.getName().endsWith(Constants.HintExtension) ||
-                                                file.getName().endsWith(Constants.ReplicaExtension)
+                                        file.getName().endsWith(DirectoryConstants.DataExtension) ||
+                                                file.getName().endsWith(DirectoryConstants.HintExtension) ||
+                                                file.getName().endsWith(DirectoryConstants.ReplicaExtension)
                                 )
                 )
                 .forEach(File::delete);

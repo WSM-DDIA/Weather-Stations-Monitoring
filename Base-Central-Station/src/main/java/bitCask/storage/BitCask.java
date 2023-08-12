@@ -1,7 +1,7 @@
 package bitCask.storage;
 
 import bitCask.exception.DirectoryNotFoundException;
-import bitCask.util.Constants;
+import bitCask.util.DirectoryConstants;
 import bitCask.util.DiskReader;
 import bitCask.util.DiskWriter;
 import com.google.common.primitives.Ints;
@@ -37,12 +37,12 @@ public class BitCask implements IBitCask {
         File directory = new File(dbDirectory);
         File[] files = directory.listFiles();
         List<File> filesToReConstruct = BitCaskFacade.listFilesGivenPrefixName(Objects.requireNonNull(files),
-                Constants.DataExtension);
+                DirectoryConstants.DataExtension);
 
         for (File file : filesToReConstruct) {
             try {
                 File hintFile = new File(file.getParent() + "/" +
-                        Constants.getFileTimeStamp(file.getName()) + Constants.HintExtension);
+                        DirectoryConstants.getFileTimeStamp(file.getName()) + DirectoryConstants.HintExtension);
                 if (hintFile.exists())
                     DiskReader.readHintFile(hintFile, keyToEntryMetaData);
                 else
@@ -113,14 +113,14 @@ public class BitCask implements IBitCask {
         Map<Integer, EntryMetaData> compactedKeyToEntryMetaData = new HashMap<>();
         Map<Integer, byte[]> keyToValue = new HashMap<>();
 
-        List<File> filesToCompact = BitCaskFacade.listFilesGivenPrefixName(files, Constants.ReplicaExtension);
+        List<File> filesToCompact = BitCaskFacade.listFilesGivenPrefixName(files, DirectoryConstants.ReplicaExtension);
         BitCaskFacade.readAllKeys(compactedKeyToEntryMetaData, keyToValue, filesToCompact);
 
-        String activeFileName = Constants.getFileTimeStamp(filesToCompact.get(filesToCompact.size() - 1).getName());
+        String activeFileName = DirectoryConstants.getFileTimeStamp(filesToCompact.get(filesToCompact.size() - 1).getName());
         File firstFile = filesToCompact.get(0);
 
-        String compactedFileName = firstFile.getParent() + '/' + Constants.getFileTimeStamp(firstFile.getName())
-                + Constants.DataExtension + 'm';
+        String compactedFileName = firstFile.getParent() + '/' + DirectoryConstants.getFileTimeStamp(firstFile.getName())
+                + DirectoryConstants.DataExtension + 'm';
         String replicaCompactedFileName = firstFile.getPath() + 'm';
 
         File compactedFile = new File(compactedFileName);
@@ -138,7 +138,7 @@ public class BitCask implements IBitCask {
         compactedFile = bitCaskFacade.renameFile(compactedFileName, compactedFile);
         bitCaskFacade.renameFile(replicaCompactedFileName, replicaCompactedFile);
 
-        String hintFileName = firstFile.getParent() + '/' + Constants.getFileTimeStamp(firstFile.getName()) + Constants.HintExtension + 'm';
+        String hintFileName = firstFile.getParent() + '/' + DirectoryConstants.getFileTimeStamp(firstFile.getName()) + DirectoryConstants.HintExtension + 'm';
         bitCaskFacade.renameFile(hintFileName, new File(hintFileName));
 
         bitCaskFacade.updateInMemoryKeysAfterCompaction(compactedKeyToEntryMetaData, compactedFile);
