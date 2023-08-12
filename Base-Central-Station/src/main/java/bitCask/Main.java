@@ -2,7 +2,6 @@ package bitCask;
 
 import bitCask.storage.BitCask;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
