@@ -4,15 +4,27 @@ package org.example;
 import java.util.Random;
 
 public class WeatherStatusMessage {
-    public String station_id;
+    private static final Random RANDOM = new Random();
     public static long s_no;
+    public String station_id;
     public String battery_status;
     public long status_timestamp;
     public int humidity;
     public double temperature;
     public double wind_speed;
-    private static final Random RANDOM = new Random();
 
+    public WeatherStatusMessage() {
+    }
+
+    public WeatherStatusMessage(String station_id) {
+        this.station_id = station_id;
+    }
+
+    /**
+     * Generate a random battery status.
+     *
+     * @return battery status
+     */
     private static String getBatteryStatus() {
         int rand = RANDOM.nextInt(10);
         if (rand < 3) {
@@ -23,21 +35,16 @@ public class WeatherStatusMessage {
             return "high";
         }
     }
-    public WeatherStatusMessage(){}
 
-    public WeatherStatusMessage(String station_id) {
-        this.station_id = station_id;
-        this.s_no = s_no;
-    }
-    public String getStationId() {
-        return station_id;
-    }
-
-
-
-    public void generateWeatherStatusMessage(long s_no, long status_timestamp, Double temperature, int humidity, Double windSpeed) {
-        this.s_no = s_no;
-        this.status_timestamp = status_timestamp;
+    /**
+     * Generate a weather status message with random values.
+     *
+     * @param sNo message number
+     * @param statusTimestamp timestamp of the message
+     */
+    public void generateWeatherStatusMessage(long sNo, long statusTimestamp, Double temperature, int humidity, Double windSpeed) {
+        s_no = sNo;
+        this.status_timestamp = statusTimestamp;
         this.battery_status = getBatteryStatus();
         this.temperature = temperature;
         this.humidity = humidity;
@@ -47,7 +54,7 @@ public class WeatherStatusMessage {
     @Override
     public String toString() {
         return "{station_id=" + this.station_id +
-                ", s_no=" + this.s_no +
+                ", s_no=" + s_no +
                 ", battery_status='" + this.battery_status + '\'' +
                 ", status_timestamp=" + this.status_timestamp +
                 ", weather={humidity=" + this.humidity + ", temperature=" + this.temperature + ", wind_speed=" + this.wind_speed + "}" +

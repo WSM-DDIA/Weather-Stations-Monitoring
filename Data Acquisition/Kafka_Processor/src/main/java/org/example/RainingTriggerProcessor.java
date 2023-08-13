@@ -16,9 +16,9 @@ import java.util.regex.Pattern;
 public class RainingTriggerProcessor {
     private static final Pattern messagePattern = Pattern.compile("\\{station_id=(\\d+), s_no=(\\d+), battery_status='(\\w+)', status_timestamp=(\\d+), " +
             "weather=\\{humidity=(\\d+(?:\\.\\d+)?), temperature=(\\d+(?:\\.\\d+)?), wind_speed=(\\d+(?:\\.\\d+)?)}}");
+    private final Properties config;
 
-    private Properties config;
-    public RainingTriggerProcessor(){
+    public RainingTriggerProcessor() {
         this.config = new Properties();
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "raining-trigger-processor");
         Map<String, String> env = System.getenv();
@@ -29,7 +29,7 @@ public class RainingTriggerProcessor {
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
     }
 
-    public void run(){
+    public void run() {
         StreamsBuilder builder = new StreamsBuilder();
 
         KStream<String, String> weatherStream = builder.stream("weather-status-messages", Consumed.with(Serdes.String(), Serdes.String()));

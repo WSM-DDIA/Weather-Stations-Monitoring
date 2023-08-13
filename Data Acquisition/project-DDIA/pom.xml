@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20140107</version>
+            <version>20230227</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -41,6 +41,12 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.26</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>

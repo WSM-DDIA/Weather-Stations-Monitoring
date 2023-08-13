@@ -10,17 +10,24 @@ import java.util.Scanner;
 public class GetData {
 
     private String url = "";
-    public GetData(String latitude,String longitude){
+
+    public GetData(String latitude, String longitude) {
         this.url = "https://api.open-meteo.com/v1/forecast?latitude=" +
                 latitude + "&longitude=" + longitude + "&hourly=relativehumidity_2m,windspeed_80m,temperature_80m&" +
                 "current_weather=true&temperature_unit=fahrenheit&timeformat=unixtime&forecast_days=1&timezone=Africa%2FCairo";
 
     }
-    private String fetchDataFromOpenMeteo(){
+
+    /**
+     * Fetches the data from the API.
+     *
+     * @return String that contains the data from the API.
+     */
+    private String fetchDataFromOpenMeteo() {
         URL url;
         HttpURLConnection conn;
         Scanner scanner;
-        String responseBody = "";
+        StringBuilder responseBody = new StringBuilder();
         try {
             url = new URL(this.url);
             conn = (HttpURLConnection) url.openConnection();
@@ -29,25 +36,31 @@ public class GetData {
 
             scanner = new Scanner(conn.getInputStream());
             while (scanner.hasNext()) {
-                responseBody += scanner.nextLine();
+                responseBody.append(scanner.nextLine());
             }
             scanner.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            e.getCause();
         }
         return responseBody.toString();
     }
-    public  Weather getData() {
+
+    /**
+     * Gets the data from the API. And parses it into a Weather object.
+     * Gets data hourly.
+     *
+     * @return Weather object that contains the data from the API.
+     */
+    public Weather getData() {
         String responseBody = this.fetchDataFromOpenMeteo();
-        // Parse the JSON response from the API.
+
         JSONObject jsonObject = new JSONObject(responseBody.toString());
-        JSONObject currentWeatherDaily = jsonObject.getJSONObject("hourly"); // get all data through all day hourly;
-        JSONArray relativehumidity_2m = currentWeatherDaily.getJSONArray("relativehumidity_2m");
-        JSONArray windspeed_80m = currentWeatherDaily.getJSONArray("windspeed_80m");
+        JSONObject currentWeatherDaily = jsonObject.getJSONObject("hourly");
+        JSONArray relativeHumidity_2m = currentWeatherDaily.getJSONArray("relativehumidity_2m");
+        JSONArray windSpeed_80m = currentWeatherDaily.getJSONArray("windspeed_80m");
         JSONArray temperature_2m = currentWeatherDaily.getJSONArray("temperature_80m");
 
-        Weather weather = new Weather(temperature_2m, relativehumidity_2m,windspeed_80m);
-        return weather;
+        return new Weather(temperature_2m, relativeHumidity_2m, windSpeed_80m);
     }
 
 }
