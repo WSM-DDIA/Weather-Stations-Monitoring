@@ -76,7 +76,7 @@ public class WeatherStationProducer {
                 }
                 continue;
             }
-            message.generateWeatherStatusMessage(s_no, currentUnixTimestamp, (Double) temperature.get(count), (Integer) humidity.get(count), (Double) windSpeed.get(count));
+            message.generateWeatherStatusMessage(s_no, currentUnixTimestamp, temperature.getDouble(count), humidity.getInt(count), windSpeed.getDouble(count));
             String value = message.toString();
             count++;
             ProducerRecord<String, String> record = new ProducerRecord<>("weather-status-messages", value);
