@@ -10,6 +10,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class BitCaskDeleter {
+    /**
+     * This method is the main method of the BitCaskReader.
+     * It initializes the BitCaskClient and deletes random keys from the BitCask store.
+     *
+     * @param args unused
+     * @throws IOException if the BitCaskClient fails to initialize
+     */
     public static void main(String[] args) throws IOException {
         BitCaskClient bitCaskClient = new BitCaskClient();
         bitCaskClient.startConnection("localhost", 4240);

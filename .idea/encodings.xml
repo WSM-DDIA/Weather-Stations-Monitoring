@@ -3,9 +3,11 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/Base-Central-Station/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Base-Central-Station/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/Data Acquisition/Kafka_Processor/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/Data Acquisition/Kafka_Processor/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Data Acquisition/kafkaProcessor/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Data Acquisition/kafkaProcessor/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Data Acquisition/project-DDIA/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Data Acquisition/project-DDIA/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Data Acquisition/weatherStation/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Data Acquisition/weatherStation/src/main/resources" charset="UTF-8" />
   </component>
 </project>

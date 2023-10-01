@@ -16,6 +16,14 @@ public class DiskWriter {
         createNewFile();
     }
 
+    /**
+     * Writes the entry to the disk in the given hint file.
+     *
+     * @param fileName name of the file
+     * @param entryMetaData entry meta-data of the entry
+     * @param key key of the entry
+     * @throws IOException if the file is not found
+     */
     public void writeEntryToHintFile(String fileName, EntryMetaData entryMetaData, byte[] key) throws IOException {
         String hintFilePath = getHintFilePath(fileName);
         File hintFile = new File(hintFilePath);
@@ -32,10 +40,15 @@ public class DiskWriter {
             bufferedOutputStream.write(bytesToWrite);
             bufferedOutputStream.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.getCause();
         }
     }
 
+    /**
+     * Gets the hint file path for the given file name.
+     * @param fileName name of the file
+     * @return hint file path
+     */
     private String getHintFilePath(String fileName) {
         String path = directoryPath + DirectoryConstants.getFileTimeStamp(fileName) + DirectoryConstants.HintExtension;
 
@@ -45,6 +58,14 @@ public class DiskWriter {
         return path;
     }
 
+    /**
+     * Writes the entry to the disk in the given file which is the compacted version.
+     *
+     * @param bitCaskEntry entry to be written
+     * @param file file to write the entry to
+     * @return DiskResponse object containing the file name and the value position
+     * @throws IOException if the file is not found
+     */
     public DiskResponse writeCompacted(BitCaskEntry bitCaskEntry, File file) throws IOException {
         File fileReplica = new File(getReplicaFilePath(file.getName()));
 
@@ -56,6 +77,12 @@ public class DiskWriter {
         return new DiskResponse(file.getName(), valuePosition);
     }
 
+    /**
+     * Gets the replica file path for the given file name.
+     *
+     * @param fileName name of the file
+     * @return replica file path
+     */
     private String getReplicaFilePath(String fileName) {
         String path = directoryPath + DirectoryConstants.getFileTimeStamp(fileName) + DirectoryConstants.ReplicaExtension;
 
@@ -65,17 +92,38 @@ public class DiskWriter {
         return path;
     }
 
+    /**
+     * Writes the entry to the disk in the active file.
+     *
+     * @param bitCaskEntry entry to be written
+     * @return DiskResponse object containing the file name and the value position
+     * @throws IOException if the file is not found
+     */
     public DiskResponse writeEntryToActiveFile(BitCaskEntry bitCaskEntry) throws IOException {
         checkIfFileExceededSize();
         return writeEntry(bitCaskEntry);
     }
 
+    /**
+     * Writes the entry to the disk in the specified file when the writer is constructed.
+     *
+     * @param bitCaskEntry entry to be written
+     * @return DiskResponse object containing the file name and the value position
+     * @throws IOException if the file is not found
+     */
     private DiskResponse writeEntry(BitCaskEntry bitCaskEntry) throws IOException {
         long valuePosition = writeToTheDisk(bitCaskEntry, this.file, fileOutputStream, fileOutputStreamReplica);
 
         return new DiskResponse(fileName, valuePosition);
     }
 
+    /**
+     * Writes the entry to the disk in the specified file.
+     *
+     * @param bitCaskEntry entry to be written
+     * @return DiskResponse object containing the file name and the value position
+     * @throws IOException if the file is not found
+     */
     private long writeToTheDisk(BitCaskEntry bitCaskEntry, File file, FileOutputStream fileOutputStream, FileOutputStream fileOutputStreamReplica) throws IOException {
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
         BufferedOutputStream bufferedOutputStreamReplica = new BufferedOutputStream(fileOutputStreamReplica);
@@ -100,11 +148,21 @@ public class DiskWriter {
         return valuePosition;
     }
 
+    /**
+     * Checks if the file has exceeded the memory limit and creates a new file if it has.
+     *
+     * @throws IOException if the file is not found
+     */
     private void checkIfFileExceededSize() throws IOException {
         if (file.length() >= DirectoryConstants.MEMORY_LIMIT)
             createNewFile();
     }
 
+    /**
+     * Creates a new file with the current timestamp.
+     *
+     * @throws FileNotFoundException if the file is not found
+     */
     private void createNewFile() throws FileNotFoundException {
         long timestamp = System.currentTimeMillis();
         fileName = timestamp + DirectoryConstants.DataExtension;

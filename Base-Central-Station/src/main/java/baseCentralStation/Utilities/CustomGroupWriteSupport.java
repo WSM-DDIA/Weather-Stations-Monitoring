@@ -15,14 +15,21 @@ import static org.apache.parquet.schema.MessageTypeParser.parseMessageType;
 public class CustomGroupWriteSupport extends WriteSupport<Group> {
 
     public static final String PARQUET_EXAMPLE_SCHEMA = "parquet.example.schema";
+    private final Map<String, String> extraMetaData;
     private MessageType schema;
     private GroupWriter groupWriter;
-    private final Map<String, String> extraMetaData;
+
     CustomGroupWriteSupport(MessageType schema, Map<String, String> extraMetaData) {
         this.schema = schema;
         this.extraMetaData = extraMetaData;
     }
 
+    /**
+     * Gets the schema from the configuration.
+     *
+     * @param configuration a configuration
+     * @return the schema for the data to write
+     */
     public static MessageType getSchema(Configuration configuration) {
         return parseMessageType(Objects.requireNonNull(configuration.get(PARQUET_EXAMPLE_SCHEMA), PARQUET_EXAMPLE_SCHEMA));
     }
@@ -50,5 +57,4 @@ public class CustomGroupWriteSupport extends WriteSupport<Group> {
     public void write(Group record) {
         groupWriter.write(record);
     }
-
 }

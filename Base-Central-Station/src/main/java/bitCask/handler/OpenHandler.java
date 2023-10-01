@@ -6,6 +6,12 @@ import com.google.common.primitives.Ints;
 import java.io.IOException;
 
 public record OpenHandler(String directory) implements MessageHandler {
+    /**
+     * Executes the open command which opens the directory.
+     *
+     * @param bitCask {@link BitCask} instance
+     * @return byte array representation of status
+     */
     @Override
     public byte[] execute(BitCask bitCask) {
         try {

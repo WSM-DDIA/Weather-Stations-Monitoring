@@ -28,8 +28,11 @@ public class KafkaAPI {
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     }
 
-
-    // Consumes messages from the Kafka server
+    /**
+     * Consumes messages from the Kafka server.
+     *
+     * @return List of messages consumed.
+     */
     public List<String> consumeMessages() {
 
         Consumer<String, String> consumer = new KafkaConsumer<>(props);

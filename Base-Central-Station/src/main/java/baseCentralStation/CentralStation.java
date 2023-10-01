@@ -14,11 +14,16 @@ public class CentralStation {
     private static final String dataDirectory = "Parquet_Files_Data";
     private static final String bitCaskDirectory = "/home/bazina/IdeaProjects/Weather-Stations-Monitoring/Base-Central-Station/src/main/resources/";
 
+    /**
+     * This method is the main method of the Central Station.
+     * It initializes the KafkaAPI, RocksDB, BitCaskClient and ParquetWriter.
+     * It consumes messages from the Kafka topic and writes them to the BitCask store and Parquet files.
+     *
+     * @throws Exception if the KafkaAPI, RocksDB, BitCaskClient or ParquetWriter fail to initialize
+     */
     public static void invoke() throws Exception {
-        // Initialize KafkaAPI
         KafkaAPI kafkaAPI = new KafkaAPI(bootstrapServers, topic);
 
-        // Initialize RocksDB
         RocksDB.loadLibrary();
         Options options = new Options().setCreateIfMissing(true);
         RocksDB invalidMessageChannel = RocksDB.open(options, dataDirectory);
@@ -27,8 +32,7 @@ public class CentralStation {
         bitCaskClient.startConnection(bitCaskIP, bitCaskPort);
         bitCaskClient.open(bitCaskDirectory);
 
-        // setup parquet files
-        WriteParquetFile writer = new WriteParquetFile();
+        StationParquetFileWriter stationParquetFileWriter = new StationParquetFileWriter();
         while (true) {
             List<String> records = kafkaAPI.consumeMessages();
             for (String record : records) {
@@ -36,12 +40,10 @@ public class CentralStation {
                     System.out.println("Message Received Successfully & is valid");
                     WeatherStatusMessage weatherStatus = new WeatherStatusMessage(Parsing.parse(record));
 
-                    // Update BitCask store
                     String status = bitCaskClient.put(Integer.parseInt(weatherStatus.getStationId()), weatherStatus.toString());
                     System.out.println(status);
 
-                    // write data to parquet files
-                    writer.write(weatherStatus);
+                    stationParquetFileWriter.write(weatherStatus);
                 } else {
                     System.out.println("invalid message");
                     invalidMessageChannel.put("Invalid".getBytes(), record.getBytes());

@@ -3,13 +3,18 @@ package baseCentralStation;
 import baseCentralStation.Utilities.BitCaskClient;
 
 import java.io.IOException;
-import java.util.OptionalInt;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class BitCaskReader {
+    /**
+     * This method is the main method of the BitCaskReader.
+     * It initializes the BitCaskClient and reads messages from the BitCask store.
+     *
+     * @param args unused
+     * @throws IOException if the BitCaskClient fails to initialize
+     */
     public static void main(String[] args) throws IOException {
         BitCaskClient bitCaskClient = new BitCaskClient();
         bitCaskClient.startConnection("localhost", 4240);

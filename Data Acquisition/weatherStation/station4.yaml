@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: station4-deployment
+  labels:
+    app: station4
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: station4
+  template:
+    metadata:
+      labels:
+        app: station4
+    spec:
+      containers:
+        - name: station4
+          image: m13salama/weatherstation:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: stationNo
+              value: "4"
+            - name: latitude
+              value: "80.6"
+            - name: longtitude
+              value: "120.7"
+            - name: KAFKA_BROKER
+              value: kafka-service:9092
+          command: ["java", "-jar", "/app/target/weatherStation-1.0.jar", "$(stationNo)", "$(latitude)", "$(longtitude)"]

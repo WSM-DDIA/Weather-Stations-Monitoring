@@ -1,0 +1,40 @@
+# 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: processor-deployment
+  labels:
+    app: processor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: processor
+  template:
+    metadata:
+      labels:
+        app: processor
+    spec:
+      containers:
+        - name: processor
+          image: m13salama/rainingprocessor:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: KAFKA_BROKER
+              value: kafka-service:9092
+          command: ["java", "-jar", "/app/target/kafkaProcessor-1.0.jar"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: processor-service
+spec:
+  type: ClusterIP
+  selector:
+    app: processor
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
