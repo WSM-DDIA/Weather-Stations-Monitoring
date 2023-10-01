@@ -133,7 +133,4 @@ Multiple Weather Stations which feed a message queueing service ***Kafka*** with
 - Implemented in [elastic-search-and-kibana](./Elastic%20Search%20and%20Kibana).
 - A command is run to **loop on parquet files** in elasticsearch.
 - Kibana's visualisations confirming Battery status distribution of some stations confirming the battery distribution of stations
-  ![image](https://github.com/basel-bytes/Weather-Stations-Monitoring/assets/95547833/5adae40f-c1cf-41d9-b4b5-e62c031b20e2)
-
 - Kibana's visualisations calculating the percentage of dropped messages from stations confirming the required percentage 10%
-  ![image](https://github.com/basel-bytes/Weather-Stations-Monitoring/assets/95547833/86d3962b-6ca2-42a2-a430-531b725e5787)
