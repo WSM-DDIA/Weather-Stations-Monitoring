@@ -57,9 +57,8 @@
 #### ***Not implemented yet.***
 
 ## System Architecture
-There are 3 major components implemented using 6 microservices.
 
-The 3 major components
+![System Architecture Diagram](https://github.com/WSM-DDIA/Weather-Stations-Monitoring/blob/12a7226f0aff85037e5854b05f7cdc9c3005801c/assets/sysArc.png)
 
 ### Data Acquisition
 Multiple Weather Stations which feed a message queueing service ***Kafka*** with their readings.
@@ -92,6 +91,8 @@ Multiple Weather Stations which feed a message queueing service ***Kafka*** with
 - It then writes them to **Parquet Files**, Parquet writer **aggregates** every 10k records and flushes them to the file.
 - Files are partitioned by **day** and **station_id**.
 - When the writer shuts down, when it restarts it will create a new file for the same station if it's the same day with new version number.
+
+![Base Central Station UML Diagram](https://github.com/WSM-DDIA/Weather-Stations-Monitoring/blob/12a7226f0aff85037e5854b05f7cdc9c3005801c/assets/BaseCentralStationUML.png)
 
 ### Data Indexing
 
@@ -128,6 +129,7 @@ Multiple Weather Stations which feed a message queueing service ***Kafka*** with
       
     *  **No checksums implemented** to detect errors.
 
+![Bitcask UML Diagram](https://github.com/WSM-DDIA/Weather-Stations-Monitoring/blob/12a7226f0aff85037e5854b05f7cdc9c3005801c/assets/BitcaskUML.png)
 
 #### Elasticsearch and Kibana
 - Implemented in [elastic-search-and-kibana](./Elastic%20Search%20and%20Kibana).
