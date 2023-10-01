@@ -99,7 +99,7 @@ public class StationParquetFileWriter {
         writer.write(weatherStatus.toGroup(parquetSchema));
         parquetSize.put(weatherStatus.getStationId(), parquetSize.get(weatherStatus.getStationId()) + 1);
 
-        if (parquetSize.get(weatherStatus.getStationId()) >= 50) { // Flush every 1000 records
+        if (parquetSize.get(weatherStatus.getStationId()) >= 10000) { // Flush every 1000 records
             writer.close();
             renameFile(parquetPath.toString(), new File(parquetPath.toString()));
             parquetSize.put(weatherStatus.getStationId(), 0);

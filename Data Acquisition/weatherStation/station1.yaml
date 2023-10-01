@@ -28,7 +28,7 @@ spec:
               value: "63.7"
             - name: KAFKA_BROKER
               value: kafka-service:9092
-          command: ["java", "-jar", "/app/target/Weather-Station-1.0.jar", "$(stationNo)", "$(latitude)", "$(longtitude)"]
+          command: ["java", "-jar", "/app/target/weatherStation-1.0.jar", "$(stationNo)", "$(latitude)", "$(longtitude)"]
 
 # ---
 # apiVersion: v1

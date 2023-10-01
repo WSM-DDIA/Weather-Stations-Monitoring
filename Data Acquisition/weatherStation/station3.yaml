@@ -1,31 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: station9-deployment
+  name: station3-deployment
   labels:
-    app: station9
+    app: station3
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: station9
+      app: station3
   template:
     metadata:
       labels:
-        app: station9
+        app: station3
     spec:
       containers:
-        - name: station9
+        - name: station3
           image: m13salama/weatherstation:latest
           ports:
             - containerPort: 3000
           env:
             - name: stationNo
-              value: "9"
+              value: "3"
             - name: latitude
-              value: "-40"
+              value: "70.6"
             - name: longtitude
-              value: "-80"
+              value: "93.7"
             - name: KAFKA_BROKER
               value: kafka-service:9092
-          command: ["java", "-jar", "/app/target/Weather-Station-1.0.jar", "$(stationNo)", "$(latitude)", "$(longtitude)"]
+          command: ["java", "-jar", "/app/target/weatherStation-1.0.jar", "$(stationNo)", "$(latitude)", "$(longtitude)"]
+

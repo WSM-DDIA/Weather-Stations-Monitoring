@@ -7,9 +7,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Weather-Station" />
-        <module name="Kafka_Processor" />
+        <module name="kafkaProcessor" />
         <module name="Base-Central-Station" />
+      </profile>
+      <profile name="Annotation profile for weatherStation" enabled="true">
+        <sourceOutputDir name="../project-DDIA/target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../project-DDIA/target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="weatherStation" />
       </profile>
     </annotationProcessing>
   </component>
