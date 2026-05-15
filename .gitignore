@@ -1,0 +1,8 @@
+# Compiled output
+*.class
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/

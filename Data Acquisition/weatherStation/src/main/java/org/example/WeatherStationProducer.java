@@ -67,7 +67,7 @@ public class WeatherStationProducer {
             currentUnixTimestamp++;
             s_no++;
             if (isDrop()) {
-                if ((s_no % 24) == 1) {
+                if ((s_no % 90) == 1) {
                     weather = getData.getData();
                     temperature = weather.getTemperature();
                     humidity = weather.getHumidity();
@@ -87,7 +87,7 @@ public class WeatherStationProducer {
             } catch (InterruptedException e) {
                 e.getCause();
             }
-            if ((s_no % 24) == 1) {
+            if ((s_no % 90) == 1) {
                 weather = getData.getData();
                 temperature = weather.getTemperature();
                 humidity = weather.getHumidity();
